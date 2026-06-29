@@ -15,6 +15,7 @@ import {
   X,
   DollarSign,
   Wallet,
+  ClipboardList,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -23,6 +24,7 @@ const navItems = [
   { href: "/transactions", label: "Transactions", icon: ArrowLeftRight },
   { href: "/budget", label: "Budget", icon: PiggyBank },
   { href: "/income", label: "Income & Pay", icon: Wallet },
+  { href: "/lists", label: "Lists", icon: ClipboardList },
   { href: "/reports", label: "Reports", icon: BarChart3 },
   { href: "/profile", label: "Profile", icon: User },
 ];

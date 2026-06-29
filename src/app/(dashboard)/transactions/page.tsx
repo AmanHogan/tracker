@@ -189,7 +189,7 @@ export default function TransactionsPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-bold text-white">Transactions</h1>
         <div className="flex items-center gap-3">
           <button
@@ -197,9 +197,9 @@ export default function TransactionsPage() {
               setShowAddForm(!showAddForm);
               setShowImport(false);
             }}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+            className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 sm:flex-none"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="h-4 w-4" />
             Add Transaction
           </button>
           <button
@@ -207,9 +207,9 @@ export default function TransactionsPage() {
               setShowImport(!showImport);
               setShowAddForm(false);
             }}
-            className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+            className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-gray-700 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-gray-600 sm:flex-none"
           >
-            <Upload className="w-4 h-4" />
+            <Upload className="h-4 w-4" />
             Import CSV
           </button>
         </div>

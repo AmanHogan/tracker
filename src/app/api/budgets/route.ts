@@ -44,20 +44,31 @@ export async function POST(req: NextRequest) {
     }
 
     const userId = (session.user as any).id;
-    const { month, category, limit } = await req.json();
+    const { month, category, limit, items } = await req.json();
 
-    if (!month || !category || limit == null) {
+    if (!month || !category) {
       return NextResponse.json(
-        { error: "Month, category, and limit are required" },
+        { error: "Month and category are required" },
         { status: 400 }
       );
     }
 
     await connectDB();
 
+    const updateData: any = { userId, month, category };
+    if (items !== undefined) {
+      updateData.items = items;
+      updateData.limit = items.reduce(
+        (sum: number, i: any) => sum + (i.amount || 0),
+        0
+      );
+    } else if (limit != null) {
+      updateData.limit = limit;
+    }
+
     const budget = await Budget.findOneAndUpdate(
       { userId, month, category },
-      { userId, month, category, limit },
+      updateData,
       { upsert: true, new: true }
     );
 
