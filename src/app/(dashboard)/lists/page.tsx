@@ -12,15 +12,15 @@ import {
   Check,
   X,
   MoreVertical,
+  Download,
+  Upload,
 } from "lucide-react";
 
 interface ListItem {
   _id?: string;
   name: string;
   notes: string;
-  lowEst: number;
-  midEst: number;
-  highEst: number;
+  costEstimate: number;
   deliverySetup: number;
   actualCost: number;
   checked: boolean;
@@ -54,17 +54,24 @@ export default function ListsPage() {
   const [addSection, setAddSection] = useState("");
   const [addName, setAddName] = useState("");
   const [addNotes, setAddNotes] = useState("");
-  const [addLow, setAddLow] = useState("");
-  const [addMid, setAddMid] = useState("");
-  const [addHigh, setAddHigh] = useState("");
+  const [addCost, setAddCost] = useState("");
   const [addDelivery, setAddDelivery] = useState("");
   const [saving, setSaving] = useState(false);
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
+  const [salesTax, setSalesTax] = useState(8.25);
+  const [applyTax, setApplyTax] = useState(false);
+  const [importLoading, setImportLoading] = useState(false);
 
   const activeList = lists.find((l) => l._id === activeListId) || null;
 
   useEffect(() => {
     fetchLists();
+    fetch("/api/users")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.salesTax != null) setSalesTax(data.salesTax);
+      })
+      .catch(() => {});
   }, []);
 
   async function fetchLists() {
@@ -97,18 +104,15 @@ export default function ListsPage() {
     setNewDesc("");
   }
 
-  const saveList = useCallback(
-    async (list: ListData) => {
-      setSaving(true);
-      await fetch("/api/lists", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: list._id, items: list.items }),
-      });
-      setSaving(false);
-    },
-    []
-  );
+  const saveList = useCallback(async (list: ListData) => {
+    setSaving(true);
+    await fetch("/api/lists", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: list._id, items: list.items }),
+    });
+    setSaving(false);
+  }, []);
 
   async function deleteList(id: string) {
     await fetch(`/api/lists?id=${id}`, { method: "DELETE" });
@@ -159,9 +163,7 @@ export default function ListsPage() {
     const newItem: ListItem = {
       name: addName,
       notes: addNotes,
-      lowEst: parseFloat(addLow) || 0,
-      midEst: parseFloat(addMid) || 0,
-      highEst: parseFloat(addHigh) || 0,
+      costEstimate: parseFloat(addCost) || 0,
       deliverySetup: parseFloat(addDelivery) || 0,
       actualCost: 0,
       checked: false,
@@ -175,9 +177,7 @@ export default function ListsPage() {
     saveList(updated);
     setAddName("");
     setAddNotes("");
-    setAddLow("");
-    setAddMid("");
-    setAddHigh("");
+    setAddCost("");
     setAddDelivery("");
   }
 
@@ -190,9 +190,46 @@ export default function ListsPage() {
     });
   }
 
+  async function exportList() {
+    if (!activeList) return;
+    const res = await fetch(`/api/lists/export?id=${activeList._id}`);
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${activeList.name.replace(/[^a-zA-Z0-9_-]/g, "_")}.xlsx`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function importList(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImportLoading(true);
+
+    const formData = new FormData();
+    formData.append("file", file);
+    if (activeList) {
+      formData.append("listId", activeList._id);
+    }
+
+    const res = await fetch("/api/lists/import", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (res.ok) {
+      await fetchLists();
+    }
+    setImportLoading(false);
+    e.target.value = "";
+  }
+
   // Group items by section
-  const sections: { name: string; items: { item: ListItem; index: number }[] }[] =
-    [];
+  const sections: {
+    name: string;
+    items: { item: ListItem; index: number }[];
+  }[] = [];
   if (activeList) {
     const sectionMap = new Map<
       string,
@@ -210,18 +247,24 @@ export default function ListsPage() {
 
   // Stats
   const totalItems = activeList?.items.length || 0;
-  const checkedItems = activeList?.items.filter((i) => i.checked).length || 0;
-  const totalMidEst =
-    activeList?.items.reduce((s, i) => s + i.midEst + i.deliverySetup, 0) || 0;
+  const checkedItems =
+    activeList?.items.filter((i) => i.checked).length || 0;
+  const subtotal =
+    activeList?.items.reduce(
+      (s, i) => s + i.costEstimate + i.deliverySetup,
+      0
+    ) || 0;
+  const taxAmount = applyTax ? subtotal * (salesTax / 100) : 0;
+  const grandTotal = subtotal + taxAmount;
   const totalActual =
     activeList?.items.reduce(
       (s, i) => s + (i.actualCost > 0 ? i.actualCost : 0),
       0
     ) || 0;
-  const checkedMidEst =
+  const checkedEst =
     activeList?.items
       .filter((i) => i.checked)
-      .reduce((s, i) => s + i.midEst + i.deliverySetup, 0) || 0;
+      .reduce((s, i) => s + i.costEstimate + i.deliverySetup, 0) || 0;
 
   if (loading) {
     return (
@@ -233,19 +276,31 @@ export default function ListsPage() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Lists</h1>
           <p className="mt-1 text-sm text-gray-400">
             Checklists, shopping lists, and move-in budgets
           </p>
         </div>
-        <button
-          onClick={() => setShowNewList(true)}
-          className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
-        >
-          <Plus size={16} /> New List
-        </button>
+        <div className="flex items-center gap-2">
+          <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-700 px-3 py-2.5 text-sm text-gray-300 hover:border-gray-500 hover:text-white">
+            <Upload size={14} />
+            {importLoading ? "Importing..." : "Import"}
+            <input
+              type="file"
+              accept=".xlsx,.xls,.csv"
+              onChange={importList}
+              className="hidden"
+            />
+          </label>
+          <button
+            onClick={() => setShowNewList(true)}
+            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            <Plus size={16} /> New List
+          </button>
+        </div>
       </div>
 
       {/* New list form */}
@@ -357,7 +412,7 @@ export default function ListsPage() {
         {/* Active list detail */}
         {activeList ? (
           <div>
-            {/* Header + stats */}
+            {/* Header */}
             <div className="mb-4 flex items-start justify-between">
               <div>
                 <div className="flex items-center gap-2">
@@ -380,31 +435,41 @@ export default function ListsPage() {
                   </p>
                 )}
               </div>
-              <div className="relative">
-                <button
-                  onClick={() =>
-                    setMenuOpen(
-                      menuOpen === activeList._id ? null : activeList._id
-                    )
-                  }
-                  className="rounded-lg p-2 text-gray-400 hover:bg-gray-800 hover:text-white"
-                >
-                  <MoreVertical size={18} />
-                </button>
-                {menuOpen === activeList._id && (
-                  <div className="absolute right-0 z-10 mt-1 w-40 rounded-lg border border-gray-700 bg-gray-900 py-1 shadow-lg">
-                    <button
-                      onClick={() => deleteList(activeList._id)}
-                      className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-400 hover:bg-gray-800"
-                    >
-                      <Trash2 size={14} /> Delete List
-                    </button>
-                  </div>
+              <div className="flex items-center gap-2">
+                {activeList.type === "checklist" && (
+                  <button
+                    onClick={exportList}
+                    className="flex items-center gap-1.5 rounded-lg border border-gray-700 px-3 py-2 text-sm text-gray-300 hover:border-gray-500 hover:text-white"
+                  >
+                    <Download size={14} /> Export
+                  </button>
                 )}
+                <div className="relative">
+                  <button
+                    onClick={() =>
+                      setMenuOpen(
+                        menuOpen === activeList._id ? null : activeList._id
+                      )
+                    }
+                    className="rounded-lg p-2 text-gray-400 hover:bg-gray-800 hover:text-white"
+                  >
+                    <MoreVertical size={18} />
+                  </button>
+                  {menuOpen === activeList._id && (
+                    <div className="absolute right-0 z-10 mt-1 w-40 rounded-lg border border-gray-700 bg-gray-900 py-1 shadow-lg">
+                      <button
+                        onClick={() => deleteList(activeList._id)}
+                        className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-400 hover:bg-gray-800"
+                      >
+                        <Trash2 size={14} /> Delete List
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
-            {/* Progress + cost summary */}
+            {/* Stats cards */}
             <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
               <div className="rounded-xl border border-gray-800 bg-gray-900 p-4">
                 <p className="text-xs text-gray-400">Progress</p>
@@ -423,10 +488,15 @@ export default function ListsPage() {
               {activeList.type === "checklist" && (
                 <>
                   <div className="rounded-xl border border-gray-800 bg-gray-900 p-4">
-                    <p className="text-xs text-gray-400">Mid Estimate</p>
+                    <p className="text-xs text-gray-400">Estimated Total</p>
                     <p className="mt-1 text-lg font-bold text-white">
-                      {formatCurrency(totalMidEst)}
+                      {formatCurrency(grandTotal)}
                     </p>
+                    {applyTax && (
+                      <p className="mt-1 text-xs text-gray-500">
+                        incl. {formatCurrency(taxAmount)} tax
+                      </p>
+                    )}
                   </div>
                   <div className="rounded-xl border border-gray-800 bg-gray-900 p-4">
                     <p className="text-xs text-gray-400">Actual Spent</p>
@@ -437,12 +507,43 @@ export default function ListsPage() {
                   <div className="rounded-xl border border-gray-800 bg-gray-900 p-4">
                     <p className="text-xs text-gray-400">Remaining (Est)</p>
                     <p className="mt-1 text-lg font-bold text-orange-400">
-                      {formatCurrency(totalMidEst - checkedMidEst)}
+                      {formatCurrency(grandTotal - checkedEst)}
                     </p>
                   </div>
                 </>
               )}
             </div>
+
+            {/* Sales tax toggle */}
+            {activeList.type === "checklist" && (
+              <div className="mb-4 flex items-center gap-4 rounded-xl border border-gray-800 bg-gray-900 px-5 py-3">
+                <label className="flex cursor-pointer items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={applyTax}
+                    onChange={(e) => setApplyTax(e.target.checked)}
+                    className="h-4 w-4 rounded border-gray-600 bg-gray-800 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-sm text-gray-300">
+                    Apply sales tax
+                  </span>
+                </label>
+                {applyTax && (
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={salesTax}
+                      onChange={(e) =>
+                        setSalesTax(parseFloat(e.target.value) || 0)
+                      }
+                      className="w-20 rounded border border-gray-700 bg-gray-800 px-2 py-1 text-right text-sm text-white focus:border-blue-500 focus:outline-none"
+                    />
+                    <span className="text-xs text-gray-400">%</span>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Add item */}
             <div className="mb-4">
@@ -470,7 +571,9 @@ export default function ListsPage() {
                       <datalist id="sections-list">
                         {Array.from(
                           new Set(
-                            activeList.items.map((i) => i.section).filter(Boolean)
+                            activeList.items
+                              .map((i) => i.section)
+                              .filter(Boolean)
                           )
                         ).map((s) => (
                           <option key={s} value={s} />
@@ -503,43 +606,19 @@ export default function ListsPage() {
                       <>
                         <div>
                           <label className="mb-1 block text-xs text-gray-400">
-                            Low Est.
+                            Cost Estimate
                           </label>
                           <input
                             type="number"
-                            value={addLow}
-                            onChange={(e) => setAddLow(e.target.value)}
+                            value={addCost}
+                            onChange={(e) => setAddCost(e.target.value)}
                             className={`${inputClasses} w-full`}
                             placeholder="0"
                           />
                         </div>
                         <div>
                           <label className="mb-1 block text-xs text-gray-400">
-                            Mid Est.
-                          </label>
-                          <input
-                            type="number"
-                            value={addMid}
-                            onChange={(e) => setAddMid(e.target.value)}
-                            className={`${inputClasses} w-full`}
-                            placeholder="0"
-                          />
-                        </div>
-                        <div>
-                          <label className="mb-1 block text-xs text-gray-400">
-                            High Est.
-                          </label>
-                          <input
-                            type="number"
-                            value={addHigh}
-                            onChange={(e) => setAddHigh(e.target.value)}
-                            className={`${inputClasses} w-full`}
-                            placeholder="0"
-                          />
-                        </div>
-                        <div>
-                          <label className="mb-1 block text-xs text-gray-400">
-                            Delivery
+                            Delivery/Setup
                           </label>
                           <input
                             type="number"
@@ -581,19 +660,24 @@ export default function ListsPage() {
                 (i) => i.item.checked
               ).length;
               const sectionTotal = section.items.length;
-              const sectionMidEst = section.items.reduce(
-                (s, i) => s + i.item.midEst + i.item.deliverySetup,
+              const sectionEst = section.items.reduce(
+                (s, i) =>
+                  s + i.item.costEstimate + i.item.deliverySetup,
                 0
               );
+              const sectionTax = applyTax
+                ? sectionEst * (salesTax / 100)
+                : 0;
               const sectionActual = section.items.reduce(
-                (s, i) => s + (i.item.actualCost > 0 ? i.item.actualCost : 0),
+                (s, i) =>
+                  s + (i.item.actualCost > 0 ? i.item.actualCost : 0),
                 0
               );
 
               return (
                 <div
                   key={section.name}
-                  className="mb-4 rounded-xl border border-gray-800 bg-gray-900 overflow-hidden"
+                  className="mb-4 overflow-hidden rounded-xl border border-gray-800 bg-gray-900"
                 >
                   {/* Section header */}
                   <button
@@ -611,9 +695,9 @@ export default function ListsPage() {
                     <span className="text-xs text-gray-500">
                       {sectionChecked}/{sectionTotal}
                     </span>
-                    {activeList.type === "checklist" && sectionMidEst > 0 && (
+                    {activeList.type === "checklist" && sectionEst > 0 && (
                       <span className="text-xs text-gray-400">
-                        {formatCurrency(sectionMidEst)}
+                        {formatCurrency(sectionEst + sectionTax)}
                       </span>
                     )}
                     <div className="h-1.5 w-16 overflow-hidden rounded-full bg-gray-800">
@@ -630,13 +714,11 @@ export default function ListsPage() {
                     <div className="divide-y divide-gray-800">
                       {/* Table header for checklists */}
                       {activeList.type === "checklist" && (
-                        <div className="hidden sm:grid sm:grid-cols-[auto_1fr_1fr_repeat(4,80px)_80px_40px] gap-2 px-5 py-2 text-xs uppercase text-gray-500">
+                        <div className="hidden gap-2 px-5 py-2 text-xs uppercase text-gray-500 sm:grid sm:grid-cols-[auto_1fr_1fr_100px_100px_100px_40px]">
                           <div className="w-6" />
                           <div>Item</div>
                           <div>Notes</div>
-                          <div className="text-right">Low</div>
-                          <div className="text-right">Mid</div>
-                          <div className="text-right">High</div>
+                          <div className="text-right">Estimate</div>
                           <div className="text-right">Delivery</div>
                           <div className="text-right">Actual</div>
                           <div />
@@ -650,7 +732,7 @@ export default function ListsPage() {
                           }`}
                         >
                           {activeList.type === "checklist" ? (
-                            <div className="grid grid-cols-1 gap-2 sm:grid-cols-[auto_1fr_1fr_repeat(4,80px)_80px_40px] sm:items-center">
+                            <div className="grid grid-cols-1 gap-2 sm:grid-cols-[auto_1fr_1fr_100px_100px_100px_40px] sm:items-center">
                               <button
                                 onClick={() => toggleItem(index)}
                                 className={`flex h-5 w-5 items-center justify-center rounded border transition-colors ${
@@ -671,19 +753,9 @@ export default function ListsPage() {
                               <span className="text-xs text-gray-400 sm:text-sm">
                                 {item.notes}
                               </span>
-                              <span className="text-right text-sm text-gray-500">
-                                {item.lowEst > 0
-                                  ? formatCurrency(item.lowEst)
-                                  : "—"}
-                              </span>
                               <span className="text-right text-sm text-gray-300">
-                                {item.midEst > 0
-                                  ? formatCurrency(item.midEst)
-                                  : "—"}
-                              </span>
-                              <span className="text-right text-sm text-gray-500">
-                                {item.highEst > 0
-                                  ? formatCurrency(item.highEst)
+                                {item.costEstimate > 0
+                                  ? formatCurrency(item.costEstimate)
                                   : "—"}
                               </span>
                               <span className="text-right text-sm text-gray-500">
@@ -744,7 +816,7 @@ export default function ListsPage() {
                           )}
                         </div>
                       ))}
-                      {/* Section subtotal for checklists */}
+                      {/* Section subtotal */}
                       {activeList.type === "checklist" && (
                         <div className="flex items-center justify-between bg-gray-800/30 px-5 py-2">
                           <span className="text-xs font-medium uppercase text-gray-400">
@@ -752,7 +824,7 @@ export default function ListsPage() {
                           </span>
                           <div className="flex gap-4 text-sm">
                             <span className="text-gray-400">
-                              Est: {formatCurrency(sectionMidEst)}
+                              Est: {formatCurrency(sectionEst + sectionTax)}
                             </span>
                             {sectionActual > 0 && (
                               <span className="text-green-400">
@@ -767,6 +839,28 @@ export default function ListsPage() {
                 </div>
               );
             })}
+
+            {/* Grand total */}
+            {activeList.type === "checklist" && totalItems > 0 && (
+              <div className="mt-2 rounded-xl border border-gray-800 bg-gray-900 px-5 py-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-white">
+                    Grand Total
+                  </span>
+                  <div className="text-right">
+                    <p className="text-lg font-bold text-white">
+                      {formatCurrency(grandTotal)}
+                    </p>
+                    {applyTax && (
+                      <p className="text-xs text-gray-500">
+                        Subtotal {formatCurrency(subtotal)} + Tax{" "}
+                        {formatCurrency(taxAmount)}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
 
             {totalItems === 0 && (
               <div className="rounded-xl border border-dashed border-gray-700 py-12 text-center">

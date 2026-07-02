@@ -4,9 +4,7 @@ export interface IListItem {
   _id?: string;
   name: string;
   notes: string;
-  lowEst: number;
-  midEst: number;
-  highEst: number;
+  costEstimate: number;
   deliverySetup: number;
   actualCost: number;
   checked: boolean;
@@ -28,9 +26,7 @@ export interface IList {
 const ListItemSchema = new Schema<IListItem>({
   name: { type: String, required: true },
   notes: { type: String, default: "" },
-  lowEst: { type: Number, default: 0 },
-  midEst: { type: Number, default: 0 },
-  highEst: { type: Number, default: 0 },
+  costEstimate: { type: Number, default: 0 },
   deliverySetup: { type: Number, default: 0 },
   actualCost: { type: Number, default: 0 },
   checked: { type: Boolean, default: false },

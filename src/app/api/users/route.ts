@@ -5,6 +5,32 @@ import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 
+export async function GET() {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    await connectDB();
+    const userId = (session.user as any).id;
+    const user = await User.findById(userId).select("-password");
+    if (!user) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+    return NextResponse.json({
+      id: user._id.toString(),
+      name: user.name,
+      email: user.email,
+      theme: user.theme,
+      salesTax: user.salesTax,
+    });
+  } catch (error) {
+    console.error("Get user error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+
 export async function PUT(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -13,7 +39,7 @@ export async function PUT(req: NextRequest) {
     }
 
     const userId = (session.user as any).id;
-    const { name, email, theme, newPassword } = await req.json();
+    const { name, email, theme, newPassword, salesTax } = await req.json();
 
     await connectDB();
 
@@ -21,6 +47,8 @@ export async function PUT(req: NextRequest) {
     if (name) updateData.name = name;
     if (email) updateData.email = email;
     if (theme) updateData.theme = theme;
+
+    if (salesTax != null) updateData.salesTax = salesTax;
 
     if (newPassword) {
       updateData.password = await bcrypt.hash(newPassword, 10);
@@ -40,6 +68,7 @@ export async function PUT(req: NextRequest) {
         name: user.name,
         email: user.email,
         theme: user.theme,
+        salesTax: user.salesTax,
       },
     });
   } catch (error) {

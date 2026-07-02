@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 
 const THEMES = [
@@ -17,9 +17,19 @@ export default function ProfilePage() {
   const [name, setName] = useState(session?.user?.name || "");
   const [email, setEmail] = useState(session?.user?.email || "");
   const [newPassword, setNewPassword] = useState("");
+  const [salesTax, setSalesTax] = useState("8.25");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/users")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.salesTax != null) setSalesTax(String(data.salesTax));
+      })
+      .catch(() => {});
+  }, []);
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -27,7 +37,7 @@ export default function ProfilePage() {
     setMessage("");
     setError("");
 
-    const body: any = { name, email, theme };
+    const body: any = { name, email, theme, salesTax: parseFloat(salesTax) || 0 };
     if (newPassword) body.newPassword = newPassword;
 
     const res = await fetch("/api/users", {
@@ -129,6 +139,30 @@ export default function ProfilePage() {
               placeholder="Leave blank to keep current"
               className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-gray-800 bg-gray-900 p-6">
+          <h2 className="mb-4 text-lg font-semibold text-white">
+            Sales Tax
+          </h2>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-gray-300">
+              Sales Tax Rate (%)
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                step="0.01"
+                value={salesTax}
+                onChange={(e) => setSalesTax(e.target.value)}
+                className="w-32 rounded-lg border border-gray-700 bg-gray-800 px-3 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+              <span className="text-sm text-gray-400">%</span>
+            </div>
+            <p className="mt-2 text-xs text-gray-500">
+              Used to calculate sales tax on list items (e.g. 8.25 for Texas)
+            </p>
           </div>
         </div>
 

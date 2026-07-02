@@ -6,6 +6,7 @@ export interface IUser {
   email: string;
   password: string;
   theme: string;
+  salesTax: number;
   createdAt: Date;
 }
 
@@ -15,6 +16,7 @@ const UserSchema = new Schema<IUser>(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     theme: { type: String, default: "dark" },
+    salesTax: { type: Number, default: 8.25 },
   },
   { timestamps: true }
 );
