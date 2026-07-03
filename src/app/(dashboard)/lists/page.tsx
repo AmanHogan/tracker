@@ -137,15 +137,26 @@ export default function ListsPage() {
     saveList(updated);
   }
 
-  function updateItemCost(itemIndex: number, actualCost: number) {
+  function updateItemField(
+    itemIndex: number,
+    field: keyof ListItem,
+    value: string | number
+  ) {
     if (!activeList) return;
     const updated = { ...activeList };
     updated.items = [...updated.items];
-    updated.items[itemIndex] = { ...updated.items[itemIndex], actualCost };
+    updated.items[itemIndex] = {
+      ...updated.items[itemIndex],
+      [field]: value,
+    };
     setLists((prev) =>
       prev.map((l) => (l._id === updated._id ? updated : l))
     );
-    saveList(updated);
+  }
+
+  function saveCurrentList() {
+    if (!activeList) return;
+    saveList(activeList);
   }
 
   function deleteItem(itemIndex: number) {
@@ -745,33 +756,64 @@ export default function ListsPage() {
                                   <Check size={12} className="text-white" />
                                 )}
                               </button>
-                              <span
-                                className={`text-sm ${item.checked ? "text-gray-500 line-through" : "text-white"}`}
-                              >
-                                {item.name}
-                              </span>
-                              <span className="text-xs text-gray-400 sm:text-sm">
-                                {item.notes}
-                              </span>
-                              <span className="text-right text-sm text-gray-300">
-                                {item.costEstimate > 0
-                                  ? formatCurrency(item.costEstimate)
-                                  : "—"}
-                              </span>
-                              <span className="text-right text-sm text-gray-500">
-                                {item.deliverySetup > 0
-                                  ? formatCurrency(item.deliverySetup)
-                                  : "—"}
-                              </span>
+                              <input
+                                type="text"
+                                value={item.name}
+                                onChange={(e) =>
+                                  updateItemField(index, "name", e.target.value)
+                                }
+                                onBlur={saveCurrentList}
+                                className={`w-full bg-transparent text-sm focus:rounded focus:border focus:border-blue-500 focus:bg-gray-800 focus:px-2 focus:py-1 focus:outline-none ${item.checked ? "text-gray-500 line-through" : "text-white"}`}
+                              />
+                              <input
+                                type="text"
+                                value={item.notes}
+                                onChange={(e) =>
+                                  updateItemField(index, "notes", e.target.value)
+                                }
+                                onBlur={saveCurrentList}
+                                className="w-full bg-transparent text-sm text-gray-400 focus:rounded focus:border focus:border-blue-500 focus:bg-gray-800 focus:px-2 focus:py-1 focus:outline-none"
+                                placeholder="Notes"
+                              />
+                              <input
+                                type="number"
+                                value={item.costEstimate || ""}
+                                onChange={(e) =>
+                                  updateItemField(
+                                    index,
+                                    "costEstimate",
+                                    parseFloat(e.target.value) || 0
+                                  )
+                                }
+                                onBlur={saveCurrentList}
+                                className="w-full rounded border border-gray-700 bg-gray-800 px-2 py-1 text-right text-sm text-gray-300 focus:border-blue-500 focus:outline-none"
+                                placeholder="$0"
+                              />
+                              <input
+                                type="number"
+                                value={item.deliverySetup || ""}
+                                onChange={(e) =>
+                                  updateItemField(
+                                    index,
+                                    "deliverySetup",
+                                    parseFloat(e.target.value) || 0
+                                  )
+                                }
+                                onBlur={saveCurrentList}
+                                className="w-full rounded border border-gray-700 bg-gray-800 px-2 py-1 text-right text-sm text-gray-500 focus:border-blue-500 focus:outline-none"
+                                placeholder="$0"
+                              />
                               <input
                                 type="number"
                                 value={item.actualCost || ""}
                                 onChange={(e) =>
-                                  updateItemCost(
+                                  updateItemField(
                                     index,
+                                    "actualCost",
                                     parseFloat(e.target.value) || 0
                                   )
                                 }
+                                onBlur={saveCurrentList}
                                 className="w-full rounded border border-gray-700 bg-gray-800 px-2 py-1 text-right text-sm text-green-400 focus:border-blue-500 focus:outline-none"
                                 placeholder="$0"
                               />
@@ -796,16 +838,25 @@ export default function ListsPage() {
                                   <Check size={12} className="text-white" />
                                 )}
                               </button>
-                              <span
-                                className={`flex-1 text-sm ${item.checked ? "text-gray-500 line-through" : "text-white"}`}
-                              >
-                                {item.name}
-                              </span>
-                              {item.notes && (
-                                <span className="text-xs text-gray-500">
-                                  {item.notes}
-                                </span>
-                              )}
+                              <input
+                                type="text"
+                                value={item.name}
+                                onChange={(e) =>
+                                  updateItemField(index, "name", e.target.value)
+                                }
+                                onBlur={saveCurrentList}
+                                className={`flex-1 bg-transparent text-sm focus:rounded focus:border focus:border-blue-500 focus:bg-gray-800 focus:px-2 focus:py-1 focus:outline-none ${item.checked ? "text-gray-500 line-through" : "text-white"}`}
+                              />
+                              <input
+                                type="text"
+                                value={item.notes}
+                                onChange={(e) =>
+                                  updateItemField(index, "notes", e.target.value)
+                                }
+                                onBlur={saveCurrentList}
+                                className="w-32 bg-transparent text-right text-xs text-gray-500 focus:rounded focus:border focus:border-blue-500 focus:bg-gray-800 focus:px-2 focus:py-1 focus:outline-none"
+                                placeholder="Notes"
+                              />
                               <button
                                 onClick={() => deleteItem(index)}
                                 className="text-gray-600 opacity-0 hover:text-red-400 group-hover:opacity-100"
