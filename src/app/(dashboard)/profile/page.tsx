@@ -70,15 +70,15 @@ export default function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="mb-8 text-2xl font-bold text-white">Profile</h1>
+      <h1 className="heading-fade mb-8 text-2xl font-bold">Profile</h1>
 
-      <div className="mb-8 flex items-center gap-4 rounded-xl border border-gray-800 bg-gray-900 p-6">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-600 text-xl font-bold text-white">
+      <div className="mb-8 flex items-center gap-4 rounded-xl border-2 border-border/60 bg-card p-6">
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-xl font-bold text-primary-foreground">
           {initials}
         </div>
         <div>
-          <p className="text-lg font-semibold text-white">{name}</p>
-          <p className="text-sm text-gray-400">{email}</p>
+          <p className="text-lg font-semibold text-foreground">{name}</p>
+          <p className="text-sm text-muted-foreground">{email}</p>
         </div>
       </div>
 
@@ -94,42 +94,42 @@ export default function ProfilePage() {
           </div>
         )}
 
-        <div className="rounded-xl border border-gray-800 bg-gray-900 p-6">
-          <h2 className="mb-4 text-lg font-semibold text-white">
+        <div className="rounded-xl border-2 border-border/60 bg-card p-6">
+          <h2 className="mb-4 text-lg font-semibold text-foreground">
             Personal Information
           </h2>
           <div className="space-y-4">
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-300">
+              <label className="mb-1.5 block text-sm font-medium text-foreground">
                 Display Name
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full rounded-lg border border-border bg-muted px-3 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-300">
+              <label className="mb-1.5 block text-sm font-medium text-foreground">
                 Email
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full rounded-lg border border-border bg-muted px-3 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
           </div>
         </div>
 
-        <div className="rounded-xl border border-gray-800 bg-gray-900 p-6">
-          <h2 className="mb-4 text-lg font-semibold text-white">
+        <div className="rounded-xl border-2 border-border/60 bg-card p-6">
+          <h2 className="mb-4 text-lg font-semibold text-foreground">
             Change Password
           </h2>
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-gray-300">
+            <label className="mb-1.5 block text-sm font-medium text-foreground">
               New Password
             </label>
             <input
@@ -137,17 +137,17 @@ export default function ProfilePage() {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder="Leave blank to keep current"
-              className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full rounded-lg border border-border bg-muted px-3 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
         </div>
 
-        <div className="rounded-xl border border-gray-800 bg-gray-900 p-6">
-          <h2 className="mb-4 text-lg font-semibold text-white">
+        <div className="rounded-xl border-2 border-border/60 bg-card p-6">
+          <h2 className="mb-4 text-lg font-semibold text-foreground">
             Sales Tax
           </h2>
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-gray-300">
+            <label className="mb-1.5 block text-sm font-medium text-foreground">
               Sales Tax Rate (%)
             </label>
             <div className="flex items-center gap-2">
@@ -156,18 +156,18 @@ export default function ProfilePage() {
                 step="0.01"
                 value={salesTax}
                 onChange={(e) => setSalesTax(e.target.value)}
-                className="w-32 rounded-lg border border-gray-700 bg-gray-800 px-3 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-32 rounded-lg border border-border bg-muted px-3 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
-              <span className="text-sm text-gray-400">%</span>
+              <span className="text-sm text-muted-foreground">%</span>
             </div>
-            <p className="mt-2 text-xs text-gray-500">
+            <p className="mt-2 text-xs text-muted-foreground">
               Used to calculate sales tax on list items (e.g. 8.25 for Texas)
             </p>
           </div>
         </div>
 
-        <div className="rounded-xl border border-gray-800 bg-gray-900 p-6">
-          <h2 className="mb-4 text-lg font-semibold text-white">Theme</h2>
+        <div className="rounded-xl border-2 border-border/60 bg-card p-6">
+          <h2 className="mb-4 text-lg font-semibold text-foreground">Theme</h2>
           <div className="grid grid-cols-3 gap-3">
             {THEMES.map((t) => (
               <button
@@ -176,8 +176,8 @@ export default function ProfilePage() {
                 onClick={() => handleThemeChange(t.value)}
                 className={`rounded-lg border px-4 py-3 text-sm font-medium transition-colors ${
                   theme === t.value
-                    ? "border-blue-500 bg-blue-600/10 text-blue-400"
-                    : "border-gray-700 text-gray-400 hover:border-gray-600 hover:text-white"
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border text-muted-foreground hover:border-border hover:text-foreground"
                 }`}
               >
                 {t.label}
@@ -189,7 +189,7 @@ export default function ProfilePage() {
         <button
           type="submit"
           disabled={saving}
-          className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          className="w-full rounded-lg bg-primary py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
         >
           {saving ? "Saving..." : "Save Changes"}
         </button>

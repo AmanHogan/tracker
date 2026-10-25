@@ -195,7 +195,7 @@ export default function BudgetPage() {
   }
 
   function getProgressColor(spent: number, limit: number) {
-    if (limit === 0) return "bg-gray-600";
+    if (limit === 0) return "bg-muted";
     const pct = spent / limit;
     if (pct <= 0.6) return "bg-green-500";
     if (pct <= 0.85) return "bg-yellow-500";
@@ -218,19 +218,19 @@ export default function BudgetPage() {
   });
 
   const inputClasses =
-    "rounded-lg border border-gray-700 bg-gray-800 px-2 py-1.5 text-right text-sm text-white focus:border-blue-500 focus:outline-none";
+    "rounded-lg border border-border bg-muted px-2 py-1.5 text-right text-sm text-foreground focus:border-primary focus:outline-none";
 
   return (
     <div>
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Budget</h1>
-          <p className="mt-1 text-sm text-gray-400">{monthLabel}</p>
+          <h1 className="heading-fade text-2xl font-bold">Budget</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{monthLabel}</p>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={copyFromPrevMonth}
-            className="flex items-center gap-2 rounded-lg border border-gray-700 px-3 py-2 text-sm text-gray-300 hover:border-gray-500 hover:text-white"
+            className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm text-foreground hover:border-border hover:text-foreground"
           >
             <Copy size={14} /> Copy Last Month
           </button>
@@ -238,26 +238,26 @@ export default function BudgetPage() {
             type="month"
             value={month}
             onChange={(e) => setMonth(e.target.value)}
-            className="rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none"
+            className="rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
           />
         </div>
       </div>
 
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-gray-800 bg-gray-900 p-5">
-          <p className="text-sm text-gray-400">Total Budget</p>
-          <p className="mt-1 text-2xl font-bold text-white">
+        <div className="rounded-xl border-2 border-border/60 bg-card p-5">
+          <p className="text-sm text-muted-foreground">Total Budget</p>
+          <p className="mt-1 text-2xl font-bold text-foreground">
             {formatCurrency(totalBudget)}
           </p>
         </div>
-        <div className="rounded-xl border border-gray-800 bg-gray-900 p-5">
-          <p className="text-sm text-gray-400">Total Spent</p>
-          <p className="mt-1 text-2xl font-bold text-white">
+        <div className="rounded-xl border-2 border-border/60 bg-card p-5">
+          <p className="text-sm text-muted-foreground">Total Spent</p>
+          <p className="mt-1 text-2xl font-bold text-foreground">
             {formatCurrency(totalSpent)}
           </p>
         </div>
-        <div className="rounded-xl border border-gray-800 bg-gray-900 p-5">
-          <p className="text-sm text-gray-400">Remaining</p>
+        <div className="rounded-xl border-2 border-border/60 bg-card p-5">
+          <p className="text-sm text-muted-foreground">Remaining</p>
           <p
             className={`mt-1 text-2xl font-bold ${totalBudget - totalSpent >= 0 ? "text-green-400" : "text-red-400"}`}
           >
@@ -268,7 +268,7 @@ export default function BudgetPage() {
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         </div>
       ) : (
         <div className="space-y-3">
@@ -286,14 +286,14 @@ export default function BudgetPage() {
             return (
               <div
                 key={entry.category}
-                className="overflow-hidden rounded-xl border border-gray-800 bg-gray-900"
+                className="overflow-hidden rounded-xl border-2 border-border/60 bg-card"
               >
                 {/* Category header */}
                 <div className="p-5">
                   <div className="mb-3 flex items-center gap-3">
                     <button
                       onClick={() => toggleExpand(entry.category)}
-                      className="text-gray-500 hover:text-white"
+                      className="text-muted-foreground hover:text-foreground"
                     >
                       {isExpanded ? (
                         <ChevronDown size={18} />
@@ -304,23 +304,23 @@ export default function BudgetPage() {
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <div>
-                          <h3 className="font-medium text-white">
+                          <h3 className="font-medium text-foreground">
                             {entry.category}
                             {hasItems && (
-                              <span className="ml-2 text-xs text-gray-500">
+                              <span className="ml-2 text-xs text-muted-foreground">
                                 {entry.items.length} item
                                 {entry.items.length !== 1 ? "s" : ""}
                               </span>
                             )}
                           </h3>
-                          <p className="text-xs text-gray-400">
+                          <p className="text-xs text-muted-foreground">
                             {getStatusLabel(entry.spent, entry.limit)}
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
                           {!hasItems ? (
                             <>
-                              <span className="text-sm text-gray-400">$</span>
+                              <span className="text-sm text-muted-foreground">$</span>
                               <input
                                 type="number"
                                 value={entry.limit || ""}
@@ -341,12 +341,12 @@ export default function BudgetPage() {
                               />
                             </>
                           ) : (
-                            <span className="text-sm font-semibold text-white">
+                            <span className="text-sm font-semibold text-foreground">
                               {formatCurrency(entry.limit)}
                             </span>
                           )}
                           {saving === entry.category && (
-                            <span className="text-xs text-blue-400">
+                            <span className="text-xs text-primary">
                               Saving...
                             </span>
                           )}
@@ -357,7 +357,7 @@ export default function BudgetPage() {
 
                   <div className="ml-8 flex items-center gap-3">
                     <div className="flex-1">
-                      <div className="h-3 overflow-hidden rounded-full bg-gray-800">
+                      <div className="h-3 overflow-hidden rounded-full bg-muted">
                         <div
                           className={`h-full rounded-full transition-all ${getProgressColor(entry.spent, entry.limit)}`}
                           style={{
@@ -366,7 +366,7 @@ export default function BudgetPage() {
                         />
                       </div>
                       {overPct > 0 && (
-                        <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-gray-800">
+                        <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
                           <div
                             className="h-full rounded-full bg-red-500/50"
                             style={{ width: `${overPct}%` }}
@@ -375,11 +375,11 @@ export default function BudgetPage() {
                       )}
                     </div>
                     <div className="text-right">
-                      <span className="text-sm font-medium text-white">
+                      <span className="text-sm font-medium text-foreground">
                         {formatCurrency(entry.spent)}
                       </span>
                       {entry.limit > 0 && (
-                        <span className="text-sm text-gray-500">
+                        <span className="text-sm text-muted-foreground">
                           {" "}
                           / {formatCurrency(entry.limit)}
                         </span>
@@ -390,19 +390,19 @@ export default function BudgetPage() {
 
                 {/* Expanded: sub-items */}
                 {isExpanded && (
-                  <div className="border-t border-gray-800 bg-gray-950/50">
+                  <div className="border-t border-border bg-background/50">
                     {hasItems && (
-                      <div className="divide-y divide-gray-800/50">
+                      <div className="divide-y divide-border/50">
                         {entry.items.map((item, idx) => (
                           <div
                             key={idx}
                             className="group flex items-center gap-3 px-5 py-2.5 pl-14"
                           >
-                            <span className="flex-1 text-sm text-gray-300">
+                            <span className="flex-1 text-sm text-foreground">
                               {item.name}
                             </span>
                             <div className="flex items-center gap-1">
-                              <span className="text-xs text-gray-500">$</span>
+                              <span className="text-xs text-muted-foreground">$</span>
                               <input
                                 type="number"
                                 value={item.amount || ""}
@@ -422,7 +422,7 @@ export default function BudgetPage() {
                               onClick={() =>
                                 deleteSubItem(entry.category, idx)
                               }
-                              className="text-gray-700 opacity-0 hover:text-red-400 group-hover:opacity-100"
+                              className="text-muted-foreground opacity-0 hover:text-red-400 group-hover:opacity-100"
                             >
                               <Trash2 size={14} />
                             </button>
@@ -433,20 +433,20 @@ export default function BudgetPage() {
 
                     {/* Add item row */}
                     {addingTo === entry.category ? (
-                      <div className="flex items-center gap-2 border-t border-gray-800/50 px-5 py-2.5 pl-14">
+                      <div className="flex items-center gap-2 border-t border-border/50 px-5 py-2.5 pl-14">
                         <input
                           type="text"
                           value={newItemName}
                           onChange={(e) => setNewItemName(e.target.value)}
                           placeholder="Item name (e.g. Water Bill)"
-                          className="flex-1 rounded-lg border border-gray-700 bg-gray-800 px-2 py-1.5 text-sm text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                          className="flex-1 rounded-lg border border-border bg-muted px-2 py-1.5 text-sm text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none"
                           autoFocus
                           onKeyDown={(e) => {
                             if (e.key === "Enter") addSubItem(entry.category);
                             if (e.key === "Escape") setAddingTo(null);
                           }}
                         />
-                        <span className="text-xs text-gray-500">$</span>
+                        <span className="text-xs text-muted-foreground">$</span>
                         <input
                           type="number"
                           value={newItemAmount}
@@ -459,13 +459,13 @@ export default function BudgetPage() {
                         />
                         <button
                           onClick={() => addSubItem(entry.category)}
-                          className="rounded bg-blue-600 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-blue-700"
+                          className="rounded bg-primary px-2.5 py-1.5 text-xs font-medium text-foreground hover:bg-primary/90"
                         >
                           Add
                         </button>
                         <button
                           onClick={() => setAddingTo(null)}
-                          className="px-1 text-xs text-gray-500 hover:text-white"
+                          className="px-1 text-xs text-muted-foreground hover:text-foreground"
                         >
                           Cancel
                         </button>
@@ -477,7 +477,7 @@ export default function BudgetPage() {
                           setNewItemName("");
                           setNewItemAmount("");
                         }}
-                        className="flex w-full items-center gap-2 border-t border-gray-800/50 px-5 py-2.5 pl-14 text-sm text-gray-500 hover:bg-gray-800/30 hover:text-gray-300"
+                        className="flex w-full items-center gap-2 border-t border-border/50 px-5 py-2.5 pl-14 text-sm text-muted-foreground hover:bg-muted/30 hover:text-foreground"
                       >
                         <Plus size={14} /> Add line item
                       </button>

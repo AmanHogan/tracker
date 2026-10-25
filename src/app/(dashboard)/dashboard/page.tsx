@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { formatCurrency } from "@/lib/utils";
+import { EmptyChartState } from "@/components/empty-chart-state";
 import { ArrowUpRight, ArrowDownRight, TrendingUp, Percent } from "lucide-react";
 import {
   BarChart,
@@ -160,7 +161,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-gray-400 text-lg">Loading dashboard...</div>
+        <div className="text-muted-foreground text-lg">Loading dashboard...</div>
       </div>
     );
   }
@@ -169,16 +170,16 @@ export default function DashboardPage() {
     <div className="p-6 max-w-7xl mx-auto space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-white">Dashboard</h1>
-        <p className="text-gray-400 mt-1">{currentMonthLabel}</p>
+        <h1 className="heading-fade text-3xl font-bold">Dashboard</h1>
+        <p className="text-muted-foreground mt-1">{currentMonthLabel}</p>
       </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Income */}
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+        <div className="rounded-xl border-2 border-border/60 bg-card p-6">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-400">Total Income</p>
+            <p className="text-sm text-muted-foreground">Total Income</p>
             <ArrowUpRight className="h-5 w-5 text-green-500" />
           </div>
           <p className="text-2xl font-bold text-green-500 mt-2">
@@ -187,9 +188,9 @@ export default function DashboardPage() {
         </div>
 
         {/* Total Expenses */}
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+        <div className="rounded-xl border-2 border-border/60 bg-card p-6">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-400">Total Expenses</p>
+            <p className="text-sm text-muted-foreground">Total Expenses</p>
             <ArrowDownRight className="h-5 w-5 text-red-500" />
           </div>
           <p className="text-2xl font-bold text-red-500 mt-2">
@@ -198,14 +199,14 @@ export default function DashboardPage() {
         </div>
 
         {/* Net */}
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+        <div className="rounded-xl border-2 border-border/60 bg-card p-6">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-400">Net</p>
-            <TrendingUp className="h-5 w-5 text-blue-500" />
+            <p className="text-sm text-muted-foreground">Net</p>
+            <TrendingUp className="h-5 w-5 text-primary" />
           </div>
           <p
             className={`text-2xl font-bold mt-2 ${
-              net >= 0 ? "text-blue-500" : "text-red-500"
+              net >= 0 ? "text-primary" : "text-red-500"
             }`}
           >
             {net >= 0 ? "+" : ""}
@@ -214,9 +215,9 @@ export default function DashboardPage() {
         </div>
 
         {/* Savings Rate */}
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+        <div className="rounded-xl border-2 border-border/60 bg-card p-6">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-400">Savings Rate</p>
+            <p className="text-sm text-muted-foreground">Savings Rate</p>
             <Percent className="h-5 w-5 text-purple-500" />
           </div>
           <p className="text-2xl font-bold text-purple-500 mt-2">
@@ -228,84 +229,92 @@ export default function DashboardPage() {
       {/* Charts Row: Budget vs Actual + Expense Breakdown */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Budget vs Actual */}
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">
+        <div className="rounded-xl border-2 border-border/60 bg-card p-6">
+          <h2 className="text-lg font-semibold text-foreground mb-4">
             Budget vs Actual
           </h2>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={budgetVsActual}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                <XAxis
-                  dataKey="category"
-                  tick={{ fill: "#9ca3af", fontSize: 12 }}
-                  axisLine={{ stroke: "#374151" }}
-                />
-                <YAxis
-                  tick={{ fill: "#9ca3af", fontSize: 12 }}
-                  axisLine={{ stroke: "#374151" }}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#1f2937",
-                    border: "1px solid #374151",
-                    borderRadius: "8px",
-                    color: "#f3f4f6",
-                  }}
-                  formatter={(value: any) => formatCurrency(Number(value))}
-                />
-                <Bar dataKey="budget" fill="#3b82f6" name="Budget" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="actual" fill="#f97316" name="Actual" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          {budgetVsActual.length > 0 ? (
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={budgetVsActual}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis
+                    dataKey="category"
+                    tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
+                    axisLine={{ stroke: "var(--border)" }}
+                  />
+                  <YAxis
+                    tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
+                    axisLine={{ stroke: "var(--border)" }}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "var(--popover)",
+                      border: "1px solid var(--border)",
+                      borderRadius: "8px",
+                      color: "var(--popover-foreground)",
+                    }}
+                    formatter={(value: any) => formatCurrency(Number(value))}
+                  />
+                  <Bar dataKey="budget" fill="#3b82f6" name="Budget" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="actual" fill="#f97316" name="Actual" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <EmptyChartState message="No budgets set for this month yet. Set limits on the Budget page to see this chart." />
+          )}
         </div>
 
         {/* Expense Breakdown */}
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">
+        <div className="rounded-xl border-2 border-border/60 bg-card p-6">
+          <h2 className="text-lg font-semibold text-foreground mb-4">
             Expense Breakdown
           </h2>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={pieData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={100}
-                  paddingAngle={2}
-                  dataKey="value"
-                  label={({ name, percent }: any) =>
-                    `${name} ${((percent || 0) * 100).toFixed(0)}%`
-                  }
-                >
-                  {pieData.map((_, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={CHART_COLORS[index % CHART_COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#1f2937",
-                    border: "1px solid #374151",
-                    borderRadius: "8px",
-                    color: "#f3f4f6",
-                  }}
-                  formatter={(value: any) => formatCurrency(Number(value))}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
+          {pieData.length > 0 ? (
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={100}
+                    paddingAngle={2}
+                    dataKey="value"
+                    label={({ name, percent }: any) =>
+                      `${name} ${((percent || 0) * 100).toFixed(0)}%`
+                    }
+                  >
+                    {pieData.map((_, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={CHART_COLORS[index % CHART_COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "var(--popover)",
+                      border: "1px solid var(--border)",
+                      borderRadius: "8px",
+                      color: "var(--popover-foreground)",
+                    }}
+                    formatter={(value: any) => formatCurrency(Number(value))}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <EmptyChartState message="No expenses logged this month yet. Add a transaction to see the breakdown." />
+          )}
         </div>
       </div>
 
       {/* 6-Month Net Cash Flow */}
-      <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-        <h2 className="text-lg font-semibold text-white mb-4">
+      <div className="rounded-xl border-2 border-border/60 bg-card p-6">
+        <h2 className="text-lg font-semibold text-foreground mb-4">
           Net Cash Flow (6 Months)
         </h2>
         <div className="h-[300px]">
@@ -317,22 +326,22 @@ export default function DashboardPage() {
                   <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis
                 dataKey="month"
-                tick={{ fill: "#9ca3af", fontSize: 12 }}
-                axisLine={{ stroke: "#374151" }}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
+                axisLine={{ stroke: "var(--border)" }}
               />
               <YAxis
-                tick={{ fill: "#9ca3af", fontSize: 12 }}
-                axisLine={{ stroke: "#374151" }}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
+                axisLine={{ stroke: "var(--border)" }}
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "#1f2937",
-                  border: "1px solid #374151",
+                  backgroundColor: "var(--popover)",
+                  border: "1px solid var(--border)",
                   borderRadius: "8px",
-                  color: "#f3f4f6",
+                  color: "var(--popover-foreground)",
                 }}
                 formatter={(value: any) => formatCurrency(Number(value))}
               />

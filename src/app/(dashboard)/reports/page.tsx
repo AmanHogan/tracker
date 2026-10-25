@@ -111,62 +111,62 @@ export default function ReportsPage() {
     <div>
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Reports</h1>
-          <p className="mt-1 text-sm text-gray-400">{monthLabel}</p>
+          <h1 className="heading-fade text-2xl font-bold">Reports</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{monthLabel}</p>
         </div>
         <input
           type="month"
           value={month}
           onChange={(e) => setMonth(e.target.value)}
-          className="rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none"
+          className="rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
         />
       </div>
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         </div>
       ) : (
         <>
           <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div className="rounded-xl border border-gray-800 bg-gray-900 p-5">
-              <p className="text-sm text-gray-400">Income</p>
+            <div className="rounded-xl border-2 border-border/60 bg-card p-5">
+              <p className="text-sm text-muted-foreground">Income</p>
               <p className="mt-1 text-2xl font-bold text-green-400">
                 {formatCurrency(totalIncome)}
               </p>
             </div>
-            <div className="rounded-xl border border-gray-800 bg-gray-900 p-5">
-              <p className="text-sm text-gray-400">Expenses</p>
+            <div className="rounded-xl border-2 border-border/60 bg-card p-5">
+              <p className="text-sm text-muted-foreground">Expenses</p>
               <p className="mt-1 text-2xl font-bold text-red-400">
                 {formatCurrency(totalExpenses)}
               </p>
             </div>
-            <div className="rounded-xl border border-gray-800 bg-gray-900 p-5">
-              <p className="text-sm text-gray-400">Net</p>
+            <div className="rounded-xl border-2 border-border/60 bg-card p-5">
+              <p className="text-sm text-muted-foreground">Net</p>
               <p
-                className={`mt-1 text-2xl font-bold ${totalIncome - totalExpenses >= 0 ? "text-blue-400" : "text-red-400"}`}
+                className={`mt-1 text-2xl font-bold ${totalIncome - totalExpenses >= 0 ? "text-primary" : "text-red-400"}`}
               >
                 {formatCurrency(totalIncome - totalExpenses)}
               </p>
             </div>
           </div>
 
-          <div className="mb-6 rounded-xl border border-gray-800 bg-gray-900 p-6">
-            <h2 className="mb-4 text-lg font-semibold text-white">
+          <div className="mb-6 rounded-xl border-2 border-border/60 bg-card p-6">
+            <h2 className="mb-4 text-lg font-semibold text-foreground">
               Weekly Breakdown
             </h2>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={weeklyData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                  <XAxis dataKey="week" stroke="#64748b" fontSize={12} />
-                  <YAxis stroke="#64748b" fontSize={12} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="week" stroke="var(--muted-foreground)" fontSize={12} />
+                  <YAxis stroke="var(--muted-foreground)" fontSize={12} />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: "#1e293b",
-                      border: "1px solid #334155",
+                      backgroundColor: "var(--popover)",
+                      border: "1px solid var(--border)",
                       borderRadius: "8px",
-                      color: "#e2e8f0",
+                      color: "var(--popover-foreground)",
                     }}
                     formatter={(value: any) => formatCurrency(Number(value))}
                   />
@@ -187,35 +187,35 @@ export default function ReportsPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-gray-800 bg-gray-900 p-6">
-            <h2 className="mb-4 text-lg font-semibold text-white">
+          <div className="rounded-xl border-2 border-border/60 bg-card p-6">
+            <h2 className="mb-4 text-lg font-semibold text-foreground">
               Category Variance (Budget vs Actual)
             </h2>
             {varianceData.length === 0 ? (
-              <p className="py-8 text-center text-gray-500">
+              <p className="py-8 text-center text-muted-foreground">
                 No budget or spending data for this month
               </p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-gray-800 text-left text-xs uppercase text-gray-400">
+                    <tr className="border-b border-border text-left text-xs uppercase text-muted-foreground">
                       <th className="pb-3 pr-4">Category</th>
                       <th className="pb-3 pr-4 text-right">Budgeted</th>
                       <th className="pb-3 pr-4 text-right">Actual</th>
                       <th className="pb-3 text-right">Difference</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-800">
+                  <tbody className="divide-y divide-border">
                     {varianceData.map((row) => (
                       <tr key={row.category}>
-                        <td className="py-3 pr-4 text-sm text-white">
+                        <td className="py-3 pr-4 text-sm text-foreground">
                           {row.category}
                         </td>
-                        <td className="py-3 pr-4 text-right text-sm text-gray-300">
+                        <td className="py-3 pr-4 text-right text-sm text-foreground">
                           {formatCurrency(row.budgeted)}
                         </td>
-                        <td className="py-3 pr-4 text-right text-sm text-gray-300">
+                        <td className="py-3 pr-4 text-right text-sm text-foreground">
                           {formatCurrency(row.actual)}
                         </td>
                         <td
@@ -226,16 +226,16 @@ export default function ReportsPage() {
                         </td>
                       </tr>
                     ))}
-                    <tr className="border-t-2 border-gray-700">
-                      <td className="py-3 pr-4 text-sm font-semibold text-white">
+                    <tr className="border-t-2 border-border">
+                      <td className="py-3 pr-4 text-sm font-semibold text-foreground">
                         Total
                       </td>
-                      <td className="py-3 pr-4 text-right text-sm font-semibold text-white">
+                      <td className="py-3 pr-4 text-right text-sm font-semibold text-foreground">
                         {formatCurrency(
                           varianceData.reduce((s, r) => s + r.budgeted, 0)
                         )}
                       </td>
-                      <td className="py-3 pr-4 text-right text-sm font-semibold text-white">
+                      <td className="py-3 pr-4 text-right text-sm font-semibold text-foreground">
                         {formatCurrency(
                           varianceData.reduce((s, r) => s + r.actual, 0)
                         )}

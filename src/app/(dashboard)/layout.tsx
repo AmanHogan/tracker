@@ -3,7 +3,10 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { Sidebar } from "@/components/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
+import { HeaderBar } from "@/components/header-bar";
+import { PageGlow } from "@/components/page-glow";
+import { SidebarProvider } from "@/lib/sidebar-context";
 
 export default function DashboardLayout({
   children,
@@ -21,8 +24,8 @@ export default function DashboardLayout({
 
   if (status === "loading") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[var(--background)]">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -30,13 +33,17 @@ export default function DashboardLayout({
   if (status === "unauthenticated") return null;
 
   return (
-    <div className="min-h-screen bg-[var(--background)]">
-      <Sidebar />
-      <main className="md:ml-64">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          {children}
-        </div>
-      </main>
-    </div>
+    <SidebarProvider>
+      <div className="flex h-screen flex-col overflow-hidden">
+        <PageGlow />
+        <AppSidebar />
+        <HeaderBar />
+        <main className="flex-1 overflow-auto">
+          <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+            {children}
+          </div>
+        </main>
+      </div>
+    </SidebarProvider>
   );
 }

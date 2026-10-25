@@ -184,20 +184,20 @@ export default function TransactionsPage() {
   };
 
   const inputClasses =
-    "bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none";
+    "bg-card border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none";
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold text-white">Transactions</h1>
+        <h1 className="heading-fade text-2xl font-bold">Transactions</h1>
         <div className="flex items-center gap-3">
           <button
             onClick={() => {
               setShowAddForm(!showAddForm);
               setShowImport(false);
             }}
-            className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 sm:flex-none"
+            className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 sm:flex-none"
           >
             <Plus className="h-4 w-4" />
             Add Transaction
@@ -207,7 +207,7 @@ export default function TransactionsPage() {
               setShowImport(!showImport);
               setShowAddForm(false);
             }}
-            className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-gray-700 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-gray-600 sm:flex-none"
+            className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-muted px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted sm:flex-none"
           >
             <Upload className="h-4 w-4" />
             Import CSV
@@ -217,14 +217,14 @@ export default function TransactionsPage() {
 
       {/* Add Transaction Form */}
       {showAddForm && (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">
+        <div className="rounded-xl border-2 border-border/60 bg-card p-6">
+          <h2 className="text-lg font-semibold text-foreground mb-4">
             Add Transaction
           </h2>
           <form onSubmit={handleAddTransaction} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-1">
+                <label className="block text-sm text-muted-foreground mb-1">
                   Date
                 </label>
                 <input
@@ -236,7 +236,7 @@ export default function TransactionsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">
+                <label className="block text-sm text-muted-foreground mb-1">
                   Description
                 </label>
                 <input
@@ -249,7 +249,7 @@ export default function TransactionsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">
+                <label className="block text-sm text-muted-foreground mb-1">
                   Amount
                 </label>
                 <input
@@ -263,7 +263,7 @@ export default function TransactionsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">
+                <label className="block text-sm text-muted-foreground mb-1">
                   Type
                 </label>
                 <select
@@ -278,7 +278,7 @@ export default function TransactionsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">
+                <label className="block text-sm text-muted-foreground mb-1">
                   Category
                 </label>
                 <select
@@ -298,14 +298,14 @@ export default function TransactionsPage() {
               <button
                 type="submit"
                 disabled={formSubmitting}
-                className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+                className="bg-primary hover:bg-primary/90 disabled:opacity-50 text-foreground rounded-lg px-4 py-2 text-sm font-medium transition-colors"
               >
                 {formSubmitting ? "Adding..." : "Add Transaction"}
               </button>
               <button
                 type="button"
                 onClick={() => setShowAddForm(false)}
-                className="text-gray-400 hover:text-white text-sm transition-colors"
+                className="text-muted-foreground hover:text-foreground text-sm transition-colors"
               >
                 Cancel
               </button>
@@ -316,24 +316,24 @@ export default function TransactionsPage() {
 
       {/* CSV Import Section */}
       {showImport && (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">
+        <div className="rounded-xl border-2 border-border/60 bg-card p-6">
+          <h2 className="text-lg font-semibold text-foreground mb-4">
             Import Fidelity CSV
           </h2>
           <div className="flex flex-wrap items-end gap-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">
+              <label className="block text-sm text-muted-foreground mb-1">
                 CSV File
               </label>
               <input
                 type="file"
                 accept=".csv"
                 onChange={(e) => setImportFile(e.target.files?.[0] || null)}
-                className="text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-gray-700 file:text-white hover:file:bg-gray-600 file:cursor-pointer"
+                className="text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-muted file:text-foreground hover:file:bg-muted file:cursor-pointer"
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">
+              <label className="block text-sm text-muted-foreground mb-1">
                 Month Filter (optional)
               </label>
               <input
@@ -346,7 +346,7 @@ export default function TransactionsPage() {
             <button
               onClick={handleImport}
               disabled={!importFile || importLoading}
-              className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+              className="bg-primary hover:bg-primary/90 disabled:opacity-50 text-foreground rounded-lg px-4 py-2 text-sm font-medium transition-colors"
             >
               {importLoading ? "Importing..." : "Import"}
             </button>
@@ -358,10 +358,10 @@ export default function TransactionsPage() {
       )}
 
       {/* Filters Bar */}
-      <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+      <div className="rounded-xl border-2 border-border/60 bg-card p-4">
         <div className="flex flex-wrap items-center gap-4">
           <div>
-            <label className="block text-xs text-gray-400 mb-1">Month</label>
+            <label className="block text-xs text-muted-foreground mb-1">Month</label>
             <input
               type="month"
               value={filterMonth}
@@ -370,7 +370,7 @@ export default function TransactionsPage() {
             />
           </div>
           <div>
-            <label className="block text-xs text-gray-400 mb-1">
+            <label className="block text-xs text-muted-foreground mb-1">
               Category
             </label>
             <select
@@ -387,7 +387,7 @@ export default function TransactionsPage() {
             </select>
           </div>
           <div>
-            <label className="block text-xs text-gray-400 mb-1">Type</label>
+            <label className="block text-xs text-muted-foreground mb-1">Type</label>
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
@@ -399,9 +399,9 @@ export default function TransactionsPage() {
             </select>
           </div>
           <div className="flex-1 min-w-[200px]">
-            <label className="block text-xs text-gray-400 mb-1">Search</label>
+            <label className="block text-xs text-muted-foreground mb-1">Search</label>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="text"
                 value={searchQuery}
@@ -415,37 +415,37 @@ export default function TransactionsPage() {
       </div>
 
       {/* Transactions Table */}
-      <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+      <div className="rounded-xl border-2 border-border/60 bg-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-800">
-                <th className="text-left text-gray-400 text-xs uppercase tracking-wider px-6 py-3">
+              <tr className="border-b border-border">
+                <th className="text-left text-muted-foreground text-xs uppercase tracking-wider px-6 py-3">
                   Date
                 </th>
-                <th className="text-left text-gray-400 text-xs uppercase tracking-wider px-6 py-3">
+                <th className="text-left text-muted-foreground text-xs uppercase tracking-wider px-6 py-3">
                   Description
                 </th>
-                <th className="text-left text-gray-400 text-xs uppercase tracking-wider px-6 py-3">
+                <th className="text-left text-muted-foreground text-xs uppercase tracking-wider px-6 py-3">
                   Category
                 </th>
-                <th className="text-left text-gray-400 text-xs uppercase tracking-wider px-6 py-3">
+                <th className="text-left text-muted-foreground text-xs uppercase tracking-wider px-6 py-3">
                   Account
                 </th>
-                <th className="text-right text-gray-400 text-xs uppercase tracking-wider px-6 py-3">
+                <th className="text-right text-muted-foreground text-xs uppercase tracking-wider px-6 py-3">
                   Amount
                 </th>
-                <th className="text-right text-gray-400 text-xs uppercase tracking-wider px-6 py-3">
+                <th className="text-right text-muted-foreground text-xs uppercase tracking-wider px-6 py-3">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-800">
+            <tbody className="divide-y divide-border">
               {loading ? (
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-6 py-12 text-center text-gray-500 text-sm"
+                    className="px-6 py-12 text-center text-muted-foreground text-sm"
                   >
                     Loading transactions...
                   </td>
@@ -454,7 +454,7 @@ export default function TransactionsPage() {
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-6 py-12 text-center text-gray-500 text-sm"
+                    className="px-6 py-12 text-center text-muted-foreground text-sm"
                   >
                     No transactions found. Add a transaction or import a CSV to
                     get started.
@@ -464,18 +464,18 @@ export default function TransactionsPage() {
                 filteredTransactions.map((t) => (
                   <tr
                     key={t.id}
-                    className="hover:bg-gray-800/50 transition-colors"
+                    className="hover:bg-muted/50 transition-colors"
                   >
-                    <td className="px-6 py-4 text-sm text-gray-300 whitespace-nowrap">
+                    <td className="px-6 py-4 text-sm text-foreground whitespace-nowrap">
                       {formatDate(t.date)}
                     </td>
-                    <td className="px-6 py-4 text-sm text-white">
+                    <td className="px-6 py-4 text-sm text-foreground">
                       {t.description}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-300">
+                    <td className="px-6 py-4 text-sm text-foreground">
                       {t.category}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-400">
+                    <td className="px-6 py-4 text-sm text-muted-foreground">
                       {t.account || "—"}
                     </td>
                     <td
@@ -490,7 +490,7 @@ export default function TransactionsPage() {
                       <button
                         onClick={() => handleDelete(t.id)}
                         disabled={deletingId === t.id}
-                        className="text-gray-500 hover:text-red-400 disabled:opacity-50 transition-colors p-1"
+                        className="text-muted-foreground hover:text-red-400 disabled:opacity-50 transition-colors p-1"
                         title="Delete transaction"
                       >
                         <Trash2 className="w-4 h-4" />

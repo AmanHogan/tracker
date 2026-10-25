@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { formatCurrency, CATEGORIES } from "@/lib/utils";
+import { estimateTaxes } from "@/lib/taxEstimator";
 import {
   BarChart,
   Bar,
@@ -63,6 +64,10 @@ export default function IncomePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  // State income tax rate is a flat % typed here just to drive the
+  // estimator — it isn't part of PayProfile itself (0 for TX/FL/etc, and
+  // the estimated result gets written into stateWithholding below).
+  const [stateRatePct, setStateRatePct] = useState(0);
 
   const currentMonth = (() => {
     const d = new Date();
@@ -106,6 +111,24 @@ export default function IncomePage() {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  function handleEstimateTaxes() {
+    const est = estimateTaxes(
+      pay.grossAnnual,
+      payslipsPerYear,
+      pay.pretax401kPercent,
+      pay.hsaPretax,
+      pay.medicalPretax,
+      stateRatePct
+    );
+    setPay({
+      ...pay,
+      oasdi: est.oasdi,
+      medicare: est.medicare,
+      federalWithholding: est.federalWithholding,
+      stateWithholding: est.stateWithholding,
+    });
+  }
 
   async function handleSave() {
     setSaving(true);
@@ -185,14 +208,14 @@ export default function IncomePage() {
   ];
 
   const inputClasses =
-    "w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-white text-right focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500";
-  const labelClasses = "text-sm text-gray-400";
-  const valueClasses = "text-sm font-medium text-white text-right";
+    "w-full rounded-lg border border-border bg-muted px-3 py-2 text-sm text-foreground text-right focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary";
+  const labelClasses = "text-sm text-muted-foreground";
+  const valueClasses = "text-sm font-medium text-foreground text-right";
 
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -201,15 +224,15 @@ export default function IncomePage() {
     <div>
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Income & Pay</h1>
-          <p className="mt-1 text-sm text-gray-400">
+          <h1 className="heading-fade text-2xl font-bold">Income & Pay</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             Paycheck breakdown and budget analysis
           </p>
         </div>
         <button
           onClick={handleSave}
           disabled={saving}
-          className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
         >
           {saving ? "Saving..." : saved ? "Saved!" : "Save"}
         </button>
@@ -218,13 +241,13 @@ export default function IncomePage() {
       {/* === INPUT FORM === */}
       <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Gross Pay */}
-        <div className="rounded-xl border border-gray-800 bg-gray-900 p-6">
-          <h2 className="mb-4 text-lg font-semibold text-white">Gross Pay</h2>
+        <div className="rounded-xl border-2 border-border/60 bg-card p-6">
+          <h2 className="mb-4 text-lg font-semibold text-foreground">Gross Pay</h2>
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-4">
               <label className={labelClasses}>Gross Annual</label>
               <div className="flex items-center gap-1">
-                <span className="text-sm text-gray-500">$</span>
+                <span className="text-sm text-muted-foreground">$</span>
                 <input
                   type="number"
                   value={pay.grossAnnual || ""}
@@ -246,7 +269,7 @@ export default function IncomePage() {
                 <option value="monthly">Monthly (12/yr)</option>
               </select>
             </div>
-            <div className="border-t border-gray-800 pt-3">
+            <div className="border-t border-border pt-3">
               <div className="flex justify-between">
                 <span className={labelClasses}>Gross Per Month</span>
                 <span className={valueClasses}>{formatCurrency(grossMonth)}</span>
@@ -260,8 +283,8 @@ export default function IncomePage() {
         </div>
 
         {/* Net Pay Distribution */}
-        <div className="rounded-xl border border-gray-800 bg-gray-900 p-6">
-          <h2 className="mb-4 text-lg font-semibold text-white">Net Pay Distribution</h2>
+        <div className="rounded-xl border-2 border-border/60 bg-card p-6">
+          <h2 className="mb-4 text-lg font-semibold text-foreground">Net Pay Distribution</h2>
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-4">
               <label className={labelClasses}>Savings (%)</label>
@@ -272,7 +295,7 @@ export default function IncomePage() {
                   onChange={(e) => setPay({ ...pay, savingsPercent: parseFloat(e.target.value) || 0 })}
                   className={`${inputClasses} w-20`}
                 />
-                <span className="text-sm text-gray-500">%</span>
+                <span className="text-sm text-muted-foreground">%</span>
               </div>
             </div>
             <div className="flex items-center justify-between gap-4">
@@ -284,7 +307,7 @@ export default function IncomePage() {
                   onChange={(e) => setPay({ ...pay, checkingPercent: parseFloat(e.target.value) || 0 })}
                   className={`${inputClasses} w-20`}
                 />
-                <span className="text-sm text-gray-500">%</span>
+                <span className="text-sm text-muted-foreground">%</span>
               </div>
             </div>
             <div className="flex items-center justify-between gap-4">
@@ -296,10 +319,10 @@ export default function IncomePage() {
                   onChange={(e) => setPay({ ...pay, rothPercent: parseFloat(e.target.value) || 0 })}
                   className={`${inputClasses} w-20`}
                 />
-                <span className="text-sm text-gray-500">%</span>
+                <span className="text-sm text-muted-foreground">%</span>
               </div>
             </div>
-            <div className="border-t border-gray-800 pt-3 space-y-1">
+            <div className="border-t border-border pt-3 space-y-1">
               <div className="flex justify-between">
                 <span className={labelClasses}>Monthly Savings</span>
                 <span className="text-sm font-medium text-green-400">{formatCurrency(monthlySavings)}</span>
@@ -317,8 +340,8 @@ export default function IncomePage() {
         </div>
 
         {/* Pre-tax Deductions */}
-        <div className="rounded-xl border border-gray-800 bg-gray-900 p-6">
-          <h2 className="mb-4 text-lg font-semibold text-white">Pre-Tax Deductions (per payslip)</h2>
+        <div className="rounded-xl border-2 border-border/60 bg-card p-6">
+          <h2 className="mb-4 text-lg font-semibold text-foreground">Pre-Tax Deductions (per payslip)</h2>
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-4">
               <label className={labelClasses}>401k (%)</label>
@@ -329,13 +352,13 @@ export default function IncomePage() {
                   onChange={(e) => setPay({ ...pay, pretax401kPercent: parseFloat(e.target.value) || 0 })}
                   className={`${inputClasses} w-20`}
                 />
-                <span className="text-sm text-gray-500">%</span>
+                <span className="text-sm text-muted-foreground">%</span>
               </div>
             </div>
             <div className="flex items-center justify-between gap-4">
               <label className={labelClasses}>HSA</label>
               <div className="flex items-center gap-1">
-                <span className="text-sm text-gray-500">$</span>
+                <span className="text-sm text-muted-foreground">$</span>
                 <input
                   type="number"
                   value={pay.hsaPretax || ""}
@@ -347,7 +370,7 @@ export default function IncomePage() {
             <div className="flex items-center justify-between gap-4">
               <label className={labelClasses}>Medical</label>
               <div className="flex items-center gap-1">
-                <span className="text-sm text-gray-500">$</span>
+                <span className="text-sm text-muted-foreground">$</span>
                 <input
                   type="number"
                   value={pay.medicalPretax || ""}
@@ -356,7 +379,7 @@ export default function IncomePage() {
                 />
               </div>
             </div>
-            <div className="border-t border-gray-800 pt-3">
+            <div className="border-t border-border pt-3">
               <div className="flex justify-between">
                 <span className={labelClasses}>401k Per Payslip</span>
                 <span className={valueClasses}>{formatCurrency(pretax401k)}</span>
@@ -370,13 +393,43 @@ export default function IncomePage() {
         </div>
 
         {/* Taxes */}
-        <div className="rounded-xl border border-gray-800 bg-gray-900 p-6">
-          <h2 className="mb-4 text-lg font-semibold text-white">Taxes (per payslip)</h2>
+        <div className="rounded-xl border-2 border-border/60 bg-card p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-foreground">Taxes (per payslip)</h2>
+            <button
+              type="button"
+              onClick={handleEstimateTaxes}
+              disabled={!pay.grossAnnual}
+              className="rounded-lg border-2 border-border/60 px-3 py-1.5 text-xs font-medium text-foreground hover:border-primary hover:bg-accent disabled:opacity-50"
+            >
+              Estimate
+            </button>
+          </div>
+          <p className="mb-3 text-xs text-muted-foreground">
+            OASDI is Social Security (6.2% up to the wage base), Medicare is
+            1.45% (+0.9% above $200k), and Federal Withholding uses 2025
+            single-filer brackets with the standard deduction. Estimate fills
+            in the four fields below from a flat state rate — 0% for states
+            like Texas or Florida with no income tax — then you can
+            fine-tune any of them by hand to match a real paystub.
+          </p>
           <div className="space-y-3">
+            <div className="flex items-center justify-between gap-4">
+              <label className={labelClasses}>State Tax Rate (for estimate)</label>
+              <div className="flex items-center gap-1">
+                <input
+                  type="number"
+                  value={stateRatePct || ""}
+                  onChange={(e) => setStateRatePct(parseFloat(e.target.value) || 0)}
+                  className={`${inputClasses} w-20`}
+                />
+                <span className="text-sm text-muted-foreground">%</span>
+              </div>
+            </div>
             <div className="flex items-center justify-between gap-4">
               <label className={labelClasses}>OASDI (Social Security)</label>
               <div className="flex items-center gap-1">
-                <span className="text-sm text-gray-500">$</span>
+                <span className="text-sm text-muted-foreground">$</span>
                 <input
                   type="number"
                   value={pay.oasdi || ""}
@@ -388,7 +441,7 @@ export default function IncomePage() {
             <div className="flex items-center justify-between gap-4">
               <label className={labelClasses}>Medicare</label>
               <div className="flex items-center gap-1">
-                <span className="text-sm text-gray-500">$</span>
+                <span className="text-sm text-muted-foreground">$</span>
                 <input
                   type="number"
                   value={pay.medicare || ""}
@@ -400,7 +453,7 @@ export default function IncomePage() {
             <div className="flex items-center justify-between gap-4">
               <label className={labelClasses}>Federal Withholding</label>
               <div className="flex items-center gap-1">
-                <span className="text-sm text-gray-500">$</span>
+                <span className="text-sm text-muted-foreground">$</span>
                 <input
                   type="number"
                   value={pay.federalWithholding || ""}
@@ -412,7 +465,7 @@ export default function IncomePage() {
             <div className="flex items-center justify-between gap-4">
               <label className={labelClasses}>State Withholding</label>
               <div className="flex items-center gap-1">
-                <span className="text-sm text-gray-500">$</span>
+                <span className="text-sm text-muted-foreground">$</span>
                 <input
                   type="number"
                   value={pay.stateWithholding || ""}
@@ -421,7 +474,7 @@ export default function IncomePage() {
                 />
               </div>
             </div>
-            <div className="border-t border-gray-800 pt-3">
+            <div className="border-t border-border pt-3">
               <div className="flex justify-between">
                 <span className={labelClasses}>Total Tax/Payslip</span>
                 <span className="text-sm font-medium text-red-400">{formatCurrency(totalTax)}</span>
@@ -433,26 +486,26 @@ export default function IncomePage() {
 
       {/* === SUMMARY CARDS === */}
       <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-5">
-        <div className="rounded-xl border border-gray-800 bg-gray-900 p-5">
-          <p className="text-xs text-gray-400">Net Pay / Month</p>
-          <p className="mt-1 text-xl font-bold text-white">{formatCurrency(netMonth)}</p>
+        <div className="rounded-xl border-2 border-border/60 bg-card p-5">
+          <p className="text-xs text-muted-foreground">Net Pay / Month</p>
+          <p className="mt-1 text-xl font-bold text-foreground">{formatCurrency(netMonth)}</p>
         </div>
-        <div className="rounded-xl border border-gray-800 bg-gray-900 p-5">
-          <p className="text-xs text-gray-400">To Checking</p>
-          <p className="mt-1 text-xl font-bold text-blue-400">{formatCurrency(monthlyChecking)}</p>
+        <div className="rounded-xl border-2 border-border/60 bg-card p-5">
+          <p className="text-xs text-muted-foreground">To Checking</p>
+          <p className="mt-1 text-xl font-bold text-primary">{formatCurrency(monthlyChecking)}</p>
         </div>
-        <div className="rounded-xl border border-gray-800 bg-gray-900 p-5">
-          <p className="text-xs text-gray-400">Total Budget</p>
+        <div className="rounded-xl border-2 border-border/60 bg-card p-5">
+          <p className="text-xs text-muted-foreground">Total Budget</p>
           <p className="mt-1 text-xl font-bold text-orange-400">{formatCurrency(totalBudget)}</p>
         </div>
-        <div className="rounded-xl border border-gray-800 bg-gray-900 p-5">
-          <p className="text-xs text-gray-400">Budget % of Checking</p>
-          <p className="mt-1 text-xl font-bold text-white">
+        <div className="rounded-xl border-2 border-border/60 bg-card p-5">
+          <p className="text-xs text-muted-foreground">Budget % of Checking</p>
+          <p className="mt-1 text-xl font-bold text-foreground">
             {monthlyChecking > 0 ? ((totalBudget / monthlyChecking) * 100).toFixed(1) : 0}%
           </p>
         </div>
-        <div className="rounded-xl border border-gray-800 bg-gray-900 p-5">
-          <p className="text-xs text-gray-400">Leftover</p>
+        <div className="rounded-xl border-2 border-border/60 bg-card p-5">
+          <p className="text-xs text-muted-foreground">Leftover</p>
           <p className={`mt-1 text-xl font-bold ${leftover >= 0 ? "text-green-400" : "text-red-400"}`}>
             {formatCurrency(leftover)}
           </p>
@@ -462,8 +515,8 @@ export default function IncomePage() {
       {/* === CHARTS === */}
       <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Where Gross Pay Goes */}
-        <div className="rounded-xl border border-gray-800 bg-gray-900 p-6">
-          <h2 className="mb-4 text-lg font-semibold text-white">
+        <div className="rounded-xl border-2 border-border/60 bg-card p-6">
+          <h2 className="mb-4 text-lg font-semibold text-foreground">
             Where Your Gross Pay Goes (Monthly)
           </h2>
           {paycheckPie.length > 0 ? (
@@ -489,10 +542,10 @@ export default function IncomePage() {
                   </Pie>
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: "#1f2937",
-                      border: "1px solid #374151",
+                      backgroundColor: "var(--popover)",
+                      border: "1px solid var(--border)",
                       borderRadius: "8px",
-                      color: "#e2e8f0",
+                      color: "var(--popover-foreground)",
                     }}
                     formatter={(value: any) => formatCurrency(Number(value))}
                   />
@@ -500,13 +553,13 @@ export default function IncomePage() {
               </ResponsiveContainer>
             </div>
           ) : (
-            <p className="py-12 text-center text-gray-500">Enter your pay info above</p>
+            <p className="py-12 text-center text-muted-foreground">Enter your pay info above</p>
           )}
         </div>
 
         {/* Net Pay Distribution */}
-        <div className="rounded-xl border border-gray-800 bg-gray-900 p-6">
-          <h2 className="mb-4 text-lg font-semibold text-white">
+        <div className="rounded-xl border-2 border-border/60 bg-card p-6">
+          <h2 className="mb-4 text-lg font-semibold text-foreground">
             Net Pay Distribution
           </h2>
           {distributionPie.length > 0 ? (
@@ -532,10 +585,10 @@ export default function IncomePage() {
                     </Pie>
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: "#1f2937",
-                        border: "1px solid #374151",
+                        backgroundColor: "var(--popover)",
+                        border: "1px solid var(--border)",
                         borderRadius: "8px",
-                        color: "#e2e8f0",
+                        color: "var(--popover-foreground)",
                       }}
                       formatter={(value: any) => formatCurrency(Number(value))}
                     />
@@ -546,55 +599,55 @@ export default function IncomePage() {
                 {[
                   { label: "Savings", value: monthlySavings, color: "bg-green-500", pct: pay.savingsPercent },
                   { label: "Roth IRA", value: monthlyRoth, color: "bg-purple-500", pct: pay.rothPercent },
-                  { label: "Checking", value: monthlyChecking, color: "bg-blue-500", pct: pay.checkingPercent },
+                  { label: "Checking", value: monthlyChecking, color: "bg-primary", pct: pay.checkingPercent },
                 ].map((item) => (
                   <div key={item.label} className="flex items-center gap-3">
                     <div className={`h-3 w-3 rounded-full ${item.color}`} />
-                    <span className="flex-1 text-sm text-gray-300">{item.label}</span>
-                    <span className="text-sm text-gray-400">{item.pct}%</span>
-                    <span className="text-sm font-medium text-white">{formatCurrency(item.value)}</span>
+                    <span className="flex-1 text-sm text-foreground">{item.label}</span>
+                    <span className="text-sm text-muted-foreground">{item.pct}%</span>
+                    <span className="text-sm font-medium text-foreground">{formatCurrency(item.value)}</span>
                   </div>
                 ))}
               </div>
             </>
           ) : (
-            <p className="py-12 text-center text-gray-500">Enter your pay info above</p>
+            <p className="py-12 text-center text-muted-foreground">Enter your pay info above</p>
           )}
         </div>
       </div>
 
       {/* Budget as % of Checking */}
-      <div className="mb-6 rounded-xl border border-gray-800 bg-gray-900 p-6">
-        <h2 className="mb-2 text-lg font-semibold text-white">
+      <div className="mb-6 rounded-xl border-2 border-border/60 bg-card p-6">
+        <h2 className="mb-2 text-lg font-semibold text-foreground">
           Budget Categories as % of Checking Income
         </h2>
-        <p className="mb-4 text-sm text-gray-400">
+        <p className="mb-4 text-sm text-muted-foreground">
           How each budget category eats into your {formatCurrency(monthlyChecking)} monthly checking
         </p>
         {budgetBars.length > 0 ? (
           <div className="h-[350px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={budgetBars} layout="vertical" margin={{ left: 80 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                 <XAxis
                   type="number"
-                  stroke="#64748b"
+                  stroke="var(--muted-foreground)"
                   fontSize={12}
                   tickFormatter={(v) => `${v.toFixed(0)}%`}
                 />
                 <YAxis
                   type="category"
                   dataKey="category"
-                  stroke="#64748b"
+                  stroke="var(--muted-foreground)"
                   fontSize={12}
                   width={80}
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "#1f2937",
-                    border: "1px solid #374151",
+                    backgroundColor: "var(--popover)",
+                    border: "1px solid var(--border)",
                     borderRadius: "8px",
-                    color: "#e2e8f0",
+                    color: "var(--popover-foreground)",
                   }}
                   formatter={(value: any, name: any) => [
                     `${Number(value).toFixed(1)}%`,
@@ -618,18 +671,18 @@ export default function IncomePage() {
             </ResponsiveContainer>
           </div>
         ) : (
-          <p className="py-12 text-center text-gray-500">
+          <p className="py-12 text-center text-muted-foreground">
             Set budget limits on the Budget page to see this chart
           </p>
         )}
       </div>
 
       {/* Checking Breakdown Pie */}
-      <div className="mb-6 rounded-xl border border-gray-800 bg-gray-900 p-6">
-        <h2 className="mb-2 text-lg font-semibold text-white">
+      <div className="mb-6 rounded-xl border-2 border-border/60 bg-card p-6">
+        <h2 className="mb-2 text-lg font-semibold text-foreground">
           Checking Account Breakdown
         </h2>
-        <p className="mb-4 text-sm text-gray-400">
+        <p className="mb-4 text-sm text-muted-foreground">
           How your monthly checking of {formatCurrency(monthlyChecking)} is allocated by budget
         </p>
         {checkingBreakdown.length > 0 ? (
@@ -655,10 +708,10 @@ export default function IncomePage() {
                   </Pie>
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: "#1f2937",
-                      border: "1px solid #374151",
+                      backgroundColor: "var(--popover)",
+                      border: "1px solid var(--border)",
                       borderRadius: "8px",
-                      color: "#e2e8f0",
+                      color: "var(--popover-foreground)",
                     }}
                     formatter={(value: any) => formatCurrency(Number(value))}
                   />
@@ -672,14 +725,14 @@ export default function IncomePage() {
                     className="h-3 w-3 rounded-full"
                     style={{ backgroundColor: COLORS[i % COLORS.length] }}
                   />
-                  <span className="flex-1 text-sm text-gray-300">{item.name}</span>
-                  <span className="text-sm text-gray-400">
+                  <span className="flex-1 text-sm text-foreground">{item.name}</span>
+                  <span className="text-sm text-muted-foreground">
                     {monthlyChecking > 0
                       ? ((item.value / monthlyChecking) * 100).toFixed(1)
                       : 0}
                     %
                   </span>
-                  <span className="text-sm font-medium text-white">
+                  <span className="text-sm font-medium text-foreground">
                     {formatCurrency(item.value)}
                   </span>
                 </div>
@@ -687,31 +740,31 @@ export default function IncomePage() {
             </div>
           </div>
         ) : (
-          <p className="py-12 text-center text-gray-500">
+          <p className="py-12 text-center text-muted-foreground">
             Set budget limits on the Budget page to see this chart
           </p>
         )}
       </div>
 
       {/* Payslip Summary Table */}
-      <div className="rounded-xl border border-gray-800 bg-gray-900 p-6">
-        <h2 className="mb-4 text-lg font-semibold text-white">Payslip Summary</h2>
+      <div className="rounded-xl border-2 border-border/60 bg-card p-6">
+        <h2 className="mb-4 text-lg font-semibold text-foreground">Payslip Summary</h2>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-800 text-left text-xs uppercase text-gray-400">
+              <tr className="border-b border-border text-left text-xs uppercase text-muted-foreground">
                 <th className="pb-3 pr-4">Item</th>
                 <th className="pb-3 pr-4 text-right">Per Payslip</th>
                 <th className="pb-3 pr-4 text-right">Monthly</th>
                 <th className="pb-3 text-right">Annual</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-800 text-sm">
+            <tbody className="divide-y divide-border text-sm">
               <tr>
-                <td className="py-2.5 font-medium text-white">Gross Pay</td>
-                <td className="py-2.5 text-right text-gray-300">{formatCurrency(grossPayslip)}</td>
-                <td className="py-2.5 text-right text-gray-300">{formatCurrency(grossMonth)}</td>
-                <td className="py-2.5 text-right text-gray-300">{formatCurrency(pay.grossAnnual)}</td>
+                <td className="py-2.5 font-medium text-foreground">Gross Pay</td>
+                <td className="py-2.5 text-right text-foreground">{formatCurrency(grossPayslip)}</td>
+                <td className="py-2.5 text-right text-foreground">{formatCurrency(grossMonth)}</td>
+                <td className="py-2.5 text-right text-foreground">{formatCurrency(pay.grossAnnual)}</td>
               </tr>
               <tr>
                 <td className="py-2.5 text-orange-400">Pre-Tax Deductions</td>
@@ -725,11 +778,11 @@ export default function IncomePage() {
                 <td className="py-2.5 text-right text-red-400">-{formatCurrency(totalTax * (payslipsPerYear / 12))}</td>
                 <td className="py-2.5 text-right text-red-400">-{formatCurrency(totalTax * payslipsPerYear)}</td>
               </tr>
-              <tr className="border-t-2 border-gray-700">
-                <td className="py-2.5 font-semibold text-white">Net Pay</td>
-                <td className="py-2.5 text-right font-semibold text-white">{formatCurrency(netPayslip)}</td>
-                <td className="py-2.5 text-right font-semibold text-white">{formatCurrency(netMonth)}</td>
-                <td className="py-2.5 text-right font-semibold text-white">{formatCurrency(netMonth * 12)}</td>
+              <tr className="border-t-2 border-border">
+                <td className="py-2.5 font-semibold text-foreground">Net Pay</td>
+                <td className="py-2.5 text-right font-semibold text-foreground">{formatCurrency(netPayslip)}</td>
+                <td className="py-2.5 text-right font-semibold text-foreground">{formatCurrency(netMonth)}</td>
+                <td className="py-2.5 text-right font-semibold text-foreground">{formatCurrency(netMonth * 12)}</td>
               </tr>
               <tr>
                 <td className="py-2.5 text-green-400">→ Savings</td>
@@ -738,10 +791,10 @@ export default function IncomePage() {
                 <td className="py-2.5 text-right text-green-400">{formatCurrency(monthlySavings * 12)}</td>
               </tr>
               <tr>
-                <td className="py-2.5 text-blue-400">→ Checking</td>
-                <td className="py-2.5 text-right text-blue-400">{formatCurrency(checkingPayslip)}</td>
-                <td className="py-2.5 text-right text-blue-400">{formatCurrency(monthlyChecking)}</td>
-                <td className="py-2.5 text-right text-blue-400">{formatCurrency(monthlyChecking * 12)}</td>
+                <td className="py-2.5 text-primary">→ Checking</td>
+                <td className="py-2.5 text-right text-primary">{formatCurrency(checkingPayslip)}</td>
+                <td className="py-2.5 text-right text-primary">{formatCurrency(monthlyChecking)}</td>
+                <td className="py-2.5 text-right text-primary">{formatCurrency(monthlyChecking * 12)}</td>
               </tr>
               <tr>
                 <td className="py-2.5 text-purple-400">→ Roth IRA</td>

@@ -37,7 +37,7 @@ interface ListData {
 }
 
 const inputClasses =
-  "rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500";
+  "rounded-lg border border-border bg-muted px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary";
 
 export default function ListsPage() {
   const [lists, setLists] = useState<ListData[]>([]);
@@ -280,7 +280,7 @@ export default function ListsPage() {
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -289,13 +289,13 @@ export default function ListsPage() {
     <div>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Lists</h1>
-          <p className="mt-1 text-sm text-gray-400">
+          <h1 className="heading-fade text-2xl font-bold">Lists</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             Checklists, shopping lists, and move-in budgets
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-700 px-3 py-2.5 text-sm text-gray-300 hover:border-gray-500 hover:text-white">
+          <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-border px-3 py-2.5 text-sm text-foreground hover:border-border hover:text-foreground">
             <Upload size={14} />
             {importLoading ? "Importing..." : "Import"}
             <input
@@ -307,7 +307,7 @@ export default function ListsPage() {
           </label>
           <button
             onClick={() => setShowNewList(true)}
-            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
+            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
             <Plus size={16} /> New List
           </button>
@@ -316,19 +316,19 @@ export default function ListsPage() {
 
       {/* New list form */}
       {showNewList && (
-        <div className="mb-6 rounded-xl border border-gray-800 bg-gray-900 p-5">
+        <div className="mb-6 rounded-xl border-2 border-border/60 bg-card p-5">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="font-semibold text-white">Create New List</h3>
+            <h3 className="font-semibold text-foreground">Create New List</h3>
             <button
               onClick={() => setShowNewList(false)}
-              className="text-gray-400 hover:text-white"
+              className="text-muted-foreground hover:text-foreground"
             >
               <X size={18} />
             </button>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
-              <label className="mb-1 block text-xs text-gray-400">Name</label>
+              <label className="mb-1 block text-xs text-muted-foreground">Name</label>
               <input
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
@@ -337,7 +337,7 @@ export default function ListsPage() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs text-gray-400">Type</label>
+              <label className="mb-1 block text-xs text-muted-foreground">Type</label>
               <select
                 value={newType}
                 onChange={(e) =>
@@ -352,7 +352,7 @@ export default function ListsPage() {
               </select>
             </div>
             <div>
-              <label className="mb-1 block text-xs text-gray-400">
+              <label className="mb-1 block text-xs text-muted-foreground">
                 Description
               </label>
               <input
@@ -365,7 +365,7 @@ export default function ListsPage() {
           </div>
           <button
             onClick={createList}
-            className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
             Create
           </button>
@@ -381,27 +381,27 @@ export default function ListsPage() {
               onClick={() => setActiveListId(list._id)}
               className={`flex w-full items-center gap-3 rounded-xl border p-4 text-left transition-colors ${
                 activeListId === list._id
-                  ? "border-blue-500/50 bg-blue-600/10"
-                  : "border-gray-800 bg-gray-900 hover:border-gray-700"
+                  ? "border-primary/50 bg-primary/10"
+                  : "border-border bg-card hover:border-border"
               }`}
             >
               {list.type === "checklist" ? (
-                <ClipboardList size={18} className="text-blue-400" />
+                <ClipboardList size={18} className="text-primary" />
               ) : (
                 <ShoppingCart size={18} className="text-green-400" />
               )}
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-white">
+                <p className="truncate text-sm font-medium text-foreground">
                   {list.name}
                 </p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-muted-foreground">
                   {list.items.filter((i) => i.checked).length}/
                   {list.items.length} items
                 </p>
               </div>
               {list.items.length > 0 && (
                 <div className="text-right">
-                  <div className="text-xs text-gray-400">
+                  <div className="text-xs text-muted-foreground">
                     {Math.round(
                       (list.items.filter((i) => i.checked).length /
                         list.items.length) *
@@ -414,7 +414,7 @@ export default function ListsPage() {
             </button>
           ))}
           {lists.length === 0 && (
-            <p className="py-8 text-center text-sm text-gray-500">
+            <p className="py-8 text-center text-sm text-muted-foreground">
               No lists yet. Create one to get started.
             </p>
           )}
@@ -427,13 +427,13 @@ export default function ListsPage() {
             <div className="mb-4 flex items-start justify-between">
               <div>
                 <div className="flex items-center gap-2">
-                  <h2 className="text-xl font-bold text-white">
+                  <h2 className="text-xl font-bold text-foreground">
                     {activeList.name}
                   </h2>
                   <span
                     className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                       activeList.type === "checklist"
-                        ? "bg-blue-500/10 text-blue-400"
+                        ? "bg-primary/10 text-primary"
                         : "bg-green-500/10 text-green-400"
                     }`}
                   >
@@ -441,7 +441,7 @@ export default function ListsPage() {
                   </span>
                 </div>
                 {activeList.description && (
-                  <p className="mt-1 text-sm text-gray-400">
+                  <p className="mt-1 text-sm text-muted-foreground">
                     {activeList.description}
                   </p>
                 )}
@@ -450,7 +450,7 @@ export default function ListsPage() {
                 {activeList.type === "checklist" && (
                   <button
                     onClick={exportList}
-                    className="flex items-center gap-1.5 rounded-lg border border-gray-700 px-3 py-2 text-sm text-gray-300 hover:border-gray-500 hover:text-white"
+                    className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm text-foreground hover:border-border hover:text-foreground"
                   >
                     <Download size={14} /> Export
                   </button>
@@ -462,15 +462,15 @@ export default function ListsPage() {
                         menuOpen === activeList._id ? null : activeList._id
                       )
                     }
-                    className="rounded-lg p-2 text-gray-400 hover:bg-gray-800 hover:text-white"
+                    className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
                   >
                     <MoreVertical size={18} />
                   </button>
                   {menuOpen === activeList._id && (
-                    <div className="absolute right-0 z-10 mt-1 w-40 rounded-lg border border-gray-700 bg-gray-900 py-1 shadow-lg">
+                    <div className="absolute right-0 z-10 mt-1 w-40 rounded-lg border border-border bg-card py-1 shadow-lg">
                       <button
                         onClick={() => deleteList(activeList._id)}
-                        className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-400 hover:bg-gray-800"
+                        className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-400 hover:bg-muted"
                       >
                         <Trash2 size={14} /> Delete List
                       </button>
@@ -482,14 +482,14 @@ export default function ListsPage() {
 
             {/* Stats cards */}
             <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <div className="rounded-xl border border-gray-800 bg-gray-900 p-4">
-                <p className="text-xs text-gray-400">Progress</p>
-                <p className="mt-1 text-lg font-bold text-white">
+              <div className="rounded-xl border-2 border-border/60 bg-card p-4">
+                <p className="text-xs text-muted-foreground">Progress</p>
+                <p className="mt-1 text-lg font-bold text-foreground">
                   {checkedItems}/{totalItems}
                 </p>
-                <div className="mt-2 h-2 overflow-hidden rounded-full bg-gray-800">
+                <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
                   <div
-                    className="h-full rounded-full bg-blue-500 transition-all"
+                    className="h-full rounded-full bg-primary transition-all"
                     style={{
                       width: `${totalItems > 0 ? (checkedItems / totalItems) * 100 : 0}%`,
                     }}
@@ -498,25 +498,25 @@ export default function ListsPage() {
               </div>
               {activeList.type === "checklist" && (
                 <>
-                  <div className="rounded-xl border border-gray-800 bg-gray-900 p-4">
-                    <p className="text-xs text-gray-400">Estimated Total</p>
-                    <p className="mt-1 text-lg font-bold text-white">
+                  <div className="rounded-xl border-2 border-border/60 bg-card p-4">
+                    <p className="text-xs text-muted-foreground">Estimated Total</p>
+                    <p className="mt-1 text-lg font-bold text-foreground">
                       {formatCurrency(grandTotal)}
                     </p>
                     {applyTax && (
-                      <p className="mt-1 text-xs text-gray-500">
+                      <p className="mt-1 text-xs text-muted-foreground">
                         incl. {formatCurrency(taxAmount)} tax
                       </p>
                     )}
                   </div>
-                  <div className="rounded-xl border border-gray-800 bg-gray-900 p-4">
-                    <p className="text-xs text-gray-400">Actual Spent</p>
+                  <div className="rounded-xl border-2 border-border/60 bg-card p-4">
+                    <p className="text-xs text-muted-foreground">Actual Spent</p>
                     <p className="mt-1 text-lg font-bold text-green-400">
                       {formatCurrency(totalActual)}
                     </p>
                   </div>
-                  <div className="rounded-xl border border-gray-800 bg-gray-900 p-4">
-                    <p className="text-xs text-gray-400">Remaining (Est)</p>
+                  <div className="rounded-xl border-2 border-border/60 bg-card p-4">
+                    <p className="text-xs text-muted-foreground">Remaining (Est)</p>
                     <p className="mt-1 text-lg font-bold text-orange-400">
                       {formatCurrency(grandTotal - checkedEst)}
                     </p>
@@ -527,15 +527,15 @@ export default function ListsPage() {
 
             {/* Sales tax toggle */}
             {activeList.type === "checklist" && (
-              <div className="mb-4 flex items-center gap-4 rounded-xl border border-gray-800 bg-gray-900 px-5 py-3">
+              <div className="mb-4 flex items-center gap-4 rounded-xl border-2 border-border/60 bg-card px-5 py-3">
                 <label className="flex cursor-pointer items-center gap-2">
                   <input
                     type="checkbox"
                     checked={applyTax}
                     onChange={(e) => setApplyTax(e.target.checked)}
-                    className="h-4 w-4 rounded border-gray-600 bg-gray-800 text-blue-600 focus:ring-blue-500"
+                    className="h-4 w-4 rounded border-border bg-muted text-primary focus:ring-primary"
                   />
-                  <span className="text-sm text-gray-300">
+                  <span className="text-sm text-foreground">
                     Apply sales tax
                   </span>
                 </label>
@@ -548,9 +548,9 @@ export default function ListsPage() {
                       onChange={(e) =>
                         setSalesTax(parseFloat(e.target.value) || 0)
                       }
-                      className="w-20 rounded border border-gray-700 bg-gray-800 px-2 py-1 text-right text-sm text-white focus:border-blue-500 focus:outline-none"
+                      className="w-20 rounded border border-border bg-muted px-2 py-1 text-right text-sm text-foreground focus:border-primary focus:outline-none"
                     />
-                    <span className="text-xs text-gray-400">%</span>
+                    <span className="text-xs text-muted-foreground">%</span>
                   </div>
                 )}
               </div>
@@ -561,15 +561,15 @@ export default function ListsPage() {
               {!showAddItem ? (
                 <button
                   onClick={() => setShowAddItem(true)}
-                  className="flex items-center gap-2 rounded-lg border border-dashed border-gray-700 px-4 py-2.5 text-sm text-gray-400 hover:border-gray-500 hover:text-white"
+                  className="flex items-center gap-2 rounded-lg border border-dashed border-border px-4 py-2.5 text-sm text-muted-foreground hover:border-border hover:text-foreground"
                 >
                   <Plus size={16} /> Add Item
                 </button>
               ) : (
-                <div className="rounded-xl border border-gray-800 bg-gray-900 p-4">
+                <div className="rounded-xl border-2 border-border/60 bg-card p-4">
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                     <div className="col-span-2 sm:col-span-1">
-                      <label className="mb-1 block text-xs text-gray-400">
+                      <label className="mb-1 block text-xs text-muted-foreground">
                         Section
                       </label>
                       <input
@@ -592,7 +592,7 @@ export default function ListsPage() {
                       </datalist>
                     </div>
                     <div className="col-span-2 sm:col-span-1">
-                      <label className="mb-1 block text-xs text-gray-400">
+                      <label className="mb-1 block text-xs text-muted-foreground">
                         Item Name
                       </label>
                       <input
@@ -603,7 +603,7 @@ export default function ListsPage() {
                       />
                     </div>
                     <div className="col-span-2">
-                      <label className="mb-1 block text-xs text-gray-400">
+                      <label className="mb-1 block text-xs text-muted-foreground">
                         Notes
                       </label>
                       <input
@@ -616,7 +616,7 @@ export default function ListsPage() {
                     {activeList.type === "checklist" && (
                       <>
                         <div>
-                          <label className="mb-1 block text-xs text-gray-400">
+                          <label className="mb-1 block text-xs text-muted-foreground">
                             Cost Estimate
                           </label>
                           <input
@@ -628,7 +628,7 @@ export default function ListsPage() {
                           />
                         </div>
                         <div>
-                          <label className="mb-1 block text-xs text-gray-400">
+                          <label className="mb-1 block text-xs text-muted-foreground">
                             Delivery/Setup
                           </label>
                           <input
@@ -645,13 +645,13 @@ export default function ListsPage() {
                   <div className="mt-3 flex gap-2">
                     <button
                       onClick={addItem}
-                      className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                      className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
                     >
                       Add
                     </button>
                     <button
                       onClick={() => setShowAddItem(false)}
-                      className="rounded-lg px-4 py-2 text-sm text-gray-400 hover:text-white"
+                      className="rounded-lg px-4 py-2 text-sm text-muted-foreground hover:text-foreground"
                     >
                       Cancel
                     </button>
@@ -661,7 +661,7 @@ export default function ListsPage() {
             </div>
 
             {saving && (
-              <div className="mb-3 text-xs text-blue-400">Saving...</div>
+              <div className="mb-3 text-xs text-primary">Saving...</div>
             )}
 
             {/* Sections + items */}
@@ -688,32 +688,32 @@ export default function ListsPage() {
               return (
                 <div
                   key={section.name}
-                  className="mb-4 overflow-hidden rounded-xl border border-gray-800 bg-gray-900"
+                  className="mb-4 overflow-hidden rounded-xl border-2 border-border/60 bg-card"
                 >
                   {/* Section header */}
                   <button
                     onClick={() => toggleSection(section.name)}
-                    className="flex w-full items-center gap-3 px-5 py-3 text-left hover:bg-gray-800/50"
+                    className="flex w-full items-center gap-3 px-5 py-3 text-left hover:bg-muted/50"
                   >
                     {isCollapsed ? (
-                      <ChevronRight size={16} className="text-gray-500" />
+                      <ChevronRight size={16} className="text-muted-foreground" />
                     ) : (
-                      <ChevronDown size={16} className="text-gray-500" />
+                      <ChevronDown size={16} className="text-muted-foreground" />
                     )}
-                    <span className="flex-1 text-sm font-semibold uppercase tracking-wider text-gray-300">
+                    <span className="flex-1 text-sm font-semibold uppercase tracking-wider text-foreground">
                       {section.name}
                     </span>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-muted-foreground">
                       {sectionChecked}/{sectionTotal}
                     </span>
                     {activeList.type === "checklist" && sectionEst > 0 && (
-                      <span className="text-xs text-gray-400">
+                      <span className="text-xs text-muted-foreground">
                         {formatCurrency(sectionEst + sectionTax)}
                       </span>
                     )}
-                    <div className="h-1.5 w-16 overflow-hidden rounded-full bg-gray-800">
+                    <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted">
                       <div
-                        className="h-full rounded-full bg-blue-500"
+                        className="h-full rounded-full bg-primary"
                         style={{
                           width: `${sectionTotal > 0 ? (sectionChecked / sectionTotal) * 100 : 0}%`,
                         }}
@@ -722,10 +722,10 @@ export default function ListsPage() {
                   </button>
 
                   {!isCollapsed && (
-                    <div className="divide-y divide-gray-800">
+                    <div className="divide-y divide-border">
                       {/* Table header for checklists */}
                       {activeList.type === "checklist" && (
-                        <div className="hidden gap-2 px-5 py-2 text-xs uppercase text-gray-500 sm:grid sm:grid-cols-[auto_1fr_1fr_100px_100px_100px_40px]">
+                        <div className="hidden gap-2 px-5 py-2 text-xs uppercase text-muted-foreground sm:grid sm:grid-cols-[auto_1fr_1fr_100px_100px_100px_40px]">
                           <div className="w-6" />
                           <div>Item</div>
                           <div>Notes</div>
@@ -739,7 +739,7 @@ export default function ListsPage() {
                         <div
                           key={index}
                           className={`group px-5 py-3 transition-colors ${
-                            item.checked ? "bg-gray-800/30" : ""
+                            item.checked ? "bg-muted/30" : ""
                           }`}
                         >
                           {activeList.type === "checklist" ? (
@@ -749,11 +749,11 @@ export default function ListsPage() {
                                 className={`flex h-5 w-5 items-center justify-center rounded border transition-colors ${
                                   item.checked
                                     ? "border-green-500 bg-green-500"
-                                    : "border-gray-600 hover:border-blue-500"
+                                    : "border-border hover:border-primary"
                                 }`}
                               >
                                 {item.checked && (
-                                  <Check size={12} className="text-white" />
+                                  <Check size={12} className="text-foreground" />
                                 )}
                               </button>
                               <input
@@ -763,7 +763,7 @@ export default function ListsPage() {
                                   updateItemField(index, "name", e.target.value)
                                 }
                                 onBlur={saveCurrentList}
-                                className={`w-full bg-transparent text-sm focus:rounded focus:border focus:border-blue-500 focus:bg-gray-800 focus:px-2 focus:py-1 focus:outline-none ${item.checked ? "text-gray-500 line-through" : "text-white"}`}
+                                className={`w-full bg-transparent text-sm focus:rounded focus:border focus:border-primary focus:bg-muted focus:px-2 focus:py-1 focus:outline-none ${item.checked ? "text-muted-foreground line-through" : "text-foreground"}`}
                               />
                               <input
                                 type="text"
@@ -772,7 +772,7 @@ export default function ListsPage() {
                                   updateItemField(index, "notes", e.target.value)
                                 }
                                 onBlur={saveCurrentList}
-                                className="w-full bg-transparent text-sm text-gray-400 focus:rounded focus:border focus:border-blue-500 focus:bg-gray-800 focus:px-2 focus:py-1 focus:outline-none"
+                                className="w-full bg-transparent text-sm text-muted-foreground focus:rounded focus:border focus:border-primary focus:bg-muted focus:px-2 focus:py-1 focus:outline-none"
                                 placeholder="Notes"
                               />
                               <input
@@ -786,7 +786,7 @@ export default function ListsPage() {
                                   )
                                 }
                                 onBlur={saveCurrentList}
-                                className="w-full rounded border border-gray-700 bg-gray-800 px-2 py-1 text-right text-sm text-gray-300 focus:border-blue-500 focus:outline-none"
+                                className="w-full rounded border border-border bg-muted px-2 py-1 text-right text-sm text-foreground focus:border-primary focus:outline-none"
                                 placeholder="$0"
                               />
                               <input
@@ -800,7 +800,7 @@ export default function ListsPage() {
                                   )
                                 }
                                 onBlur={saveCurrentList}
-                                className="w-full rounded border border-gray-700 bg-gray-800 px-2 py-1 text-right text-sm text-gray-500 focus:border-blue-500 focus:outline-none"
+                                className="w-full rounded border border-border bg-muted px-2 py-1 text-right text-sm text-muted-foreground focus:border-primary focus:outline-none"
                                 placeholder="$0"
                               />
                               <input
@@ -814,12 +814,12 @@ export default function ListsPage() {
                                   )
                                 }
                                 onBlur={saveCurrentList}
-                                className="w-full rounded border border-gray-700 bg-gray-800 px-2 py-1 text-right text-sm text-green-400 focus:border-blue-500 focus:outline-none"
+                                className="w-full rounded border border-border bg-muted px-2 py-1 text-right text-sm text-green-400 focus:border-primary focus:outline-none"
                                 placeholder="$0"
                               />
                               <button
                                 onClick={() => deleteItem(index)}
-                                className="text-gray-600 opacity-0 transition-opacity hover:text-red-400 group-hover:opacity-100"
+                                className="text-muted-foreground opacity-0 transition-opacity hover:text-red-400 group-hover:opacity-100"
                               >
                                 <Trash2 size={14} />
                               </button>
@@ -831,11 +831,11 @@ export default function ListsPage() {
                                 className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors ${
                                   item.checked
                                     ? "border-green-500 bg-green-500"
-                                    : "border-gray-600 hover:border-blue-500"
+                                    : "border-border hover:border-primary"
                                 }`}
                               >
                                 {item.checked && (
-                                  <Check size={12} className="text-white" />
+                                  <Check size={12} className="text-foreground" />
                                 )}
                               </button>
                               <input
@@ -845,7 +845,7 @@ export default function ListsPage() {
                                   updateItemField(index, "name", e.target.value)
                                 }
                                 onBlur={saveCurrentList}
-                                className={`flex-1 bg-transparent text-sm focus:rounded focus:border focus:border-blue-500 focus:bg-gray-800 focus:px-2 focus:py-1 focus:outline-none ${item.checked ? "text-gray-500 line-through" : "text-white"}`}
+                                className={`flex-1 bg-transparent text-sm focus:rounded focus:border focus:border-primary focus:bg-muted focus:px-2 focus:py-1 focus:outline-none ${item.checked ? "text-muted-foreground line-through" : "text-foreground"}`}
                               />
                               <input
                                 type="text"
@@ -854,12 +854,12 @@ export default function ListsPage() {
                                   updateItemField(index, "notes", e.target.value)
                                 }
                                 onBlur={saveCurrentList}
-                                className="w-32 bg-transparent text-right text-xs text-gray-500 focus:rounded focus:border focus:border-blue-500 focus:bg-gray-800 focus:px-2 focus:py-1 focus:outline-none"
+                                className="w-32 bg-transparent text-right text-xs text-muted-foreground focus:rounded focus:border focus:border-primary focus:bg-muted focus:px-2 focus:py-1 focus:outline-none"
                                 placeholder="Notes"
                               />
                               <button
                                 onClick={() => deleteItem(index)}
-                                className="text-gray-600 opacity-0 hover:text-red-400 group-hover:opacity-100"
+                                className="text-muted-foreground opacity-0 hover:text-red-400 group-hover:opacity-100"
                               >
                                 <Trash2 size={14} />
                               </button>
@@ -869,12 +869,12 @@ export default function ListsPage() {
                       ))}
                       {/* Section subtotal */}
                       {activeList.type === "checklist" && (
-                        <div className="flex items-center justify-between bg-gray-800/30 px-5 py-2">
-                          <span className="text-xs font-medium uppercase text-gray-400">
+                        <div className="flex items-center justify-between bg-muted/30 px-5 py-2">
+                          <span className="text-xs font-medium uppercase text-muted-foreground">
                             {section.name} Subtotal
                           </span>
                           <div className="flex gap-4 text-sm">
-                            <span className="text-gray-400">
+                            <span className="text-muted-foreground">
                               Est: {formatCurrency(sectionEst + sectionTax)}
                             </span>
                             {sectionActual > 0 && (
@@ -893,17 +893,17 @@ export default function ListsPage() {
 
             {/* Grand total */}
             {activeList.type === "checklist" && totalItems > 0 && (
-              <div className="mt-2 rounded-xl border border-gray-800 bg-gray-900 px-5 py-4">
+              <div className="mt-2 rounded-xl border-2 border-border/60 bg-card px-5 py-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-white">
+                  <span className="text-sm font-semibold text-foreground">
                     Grand Total
                   </span>
                   <div className="text-right">
-                    <p className="text-lg font-bold text-white">
+                    <p className="text-lg font-bold text-foreground">
                       {formatCurrency(grandTotal)}
                     </p>
                     {applyTax && (
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-muted-foreground">
                         Subtotal {formatCurrency(subtotal)} + Tax{" "}
                         {formatCurrency(taxAmount)}
                       </p>
@@ -914,16 +914,16 @@ export default function ListsPage() {
             )}
 
             {totalItems === 0 && (
-              <div className="rounded-xl border border-dashed border-gray-700 py-12 text-center">
-                <p className="text-gray-500">
+              <div className="rounded-xl border border-dashed border-border py-12 text-center">
+                <p className="text-muted-foreground">
                   No items yet. Click &quot;Add Item&quot; to get started.
                 </p>
               </div>
             )}
           </div>
         ) : (
-          <div className="flex items-center justify-center rounded-xl border border-dashed border-gray-700 py-20">
-            <p className="text-gray-500">
+          <div className="flex items-center justify-center rounded-xl border border-dashed border-border py-20">
+            <p className="text-muted-foreground">
               Select a list or create a new one
             </p>
           </div>
